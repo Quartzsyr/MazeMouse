@@ -1,4 +1,4 @@
-# 电脑鼠迷宫上位机
+# MazeMouse电脑鼠迷宫上位机
 
 <div align="center">
 
@@ -197,6 +197,7 @@ pyinstaller --name="电脑鼠上位机" --icon=icon.ico --windowed restored_main
    - 连接成功后，程序会自动接收串口数据
    - 迷宫界面会实时显示电脑鼠的位置和轨迹
    - 传感器状态会在界面上实时更新
+![](Markdown_md_files/1e5fdea0-da9f-11f0-87db-7bc28ee30640.jpeg?v=1&type=image)
 
 ### 界面介绍
 
