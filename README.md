@@ -12,7 +12,7 @@
 开发者：石殷睿（苏州大学电子信息学院）  
 用途：电子系统课程设计  
 联系方式：yinrui_shi@163.com
-
+如果学弟学妹觉得有用记得给个STAR哦~
 </div>
 
 ---
@@ -767,7 +767,7 @@ front_val, left_val, right_val: int  # 传感器值 (0/1)
 
 **如果这个项目对你有帮助，欢迎 Star ⭐**
 
-Made with ❤️ by 石殷睿
+by 石殷睿（SUDA/UESTC）
 
 </div>
 
