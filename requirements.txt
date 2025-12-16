@@ -1,0 +1,5 @@
+PyQt5>=5.15.0
+matplotlib>=3.5.0
+numpy>=1.21.0
+qfluentwidgets>=1.4.0
+qframelesswindow>=0.4.0
