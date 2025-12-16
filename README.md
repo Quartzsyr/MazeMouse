@@ -1,4 +1,4 @@
-# MazeMouse电脑鼠迷宫上位机
+# 电脑鼠迷宫上位机
 
 <div align="center">
 
@@ -7,12 +7,26 @@
 ![PyQt5](https://img.shields.io/badge/PyQt5-5.15+-orange.svg)
 ![License](https://img.shields.io/badge/license-Educational-yellow.svg)
 
-**一个电脑鼠迷宫可视化与控制系统**
+**一个功能强大的电脑鼠迷宫可视化与控制系统**
 
 开发者：石殷睿（苏州大学电子信息学院）  
 用途：电子系统课程设计  
-联系方式：yinrui_shi@163.com  
-如果学弟学妹觉得有用记得给个STAR哦~
+联系方式：yinrui_shi@163.com
+
+</div>
+
+<div align="center">
+
+<img width="1341" height="1007" alt="主控制页面 - 迷宫与控制面板" src="https://github.com/user-attachments/assets/aed41e9f-4476-4d92-873f-08398fce4ac5" />
+
+<img width="1341" height="1007" alt="实时日志页面" src="https://github.com/user-attachments/assets/de2804cc-9a49-419e-89f5-b261ee187c01" />
+
+<img width="1341" height="1007" alt="轨迹回放页面" src="https://github.com/user-attachments/assets/31c5a065-377f-4eb5-8872-af64bd99b9d9" />
+
+<img width="1341" height="1007" alt="设置页面与主题配置" src="https://github.com/user-attachments/assets/cf24f77d-4d9f-4369-834d-4df9bfb9ba29" />
+
+<img width="413" height="121" alt="状态栏与串口信息" src="https://github.com/user-attachments/assets/4ee69c49-2976-4d0d-aa67-bfae3285c448" />
+
 </div>
 
 ---
@@ -197,7 +211,6 @@ pyinstaller --name="电脑鼠上位机" --icon=icon.ico --windowed restored_main
    - 连接成功后，程序会自动接收串口数据
    - 迷宫界面会实时显示电脑鼠的位置和轨迹
    - 传感器状态会在界面上实时更新
-![](Markdown_md_files/1e5fdea0-da9f-11f0-87db-7bc28ee30640.jpeg?v=1&type=image)
 
 ### 界面介绍
 
@@ -768,7 +781,7 @@ front_val, left_val, right_val: int  # 传感器值 (0/1)
 
 **如果这个项目对你有帮助，欢迎 Star ⭐**
 
-by 石殷睿（SUDA/UESTC）
+Made with ❤️ by 石殷睿
 
 </div>
 
