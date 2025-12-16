@@ -7,7 +7,7 @@
 ![PyQt5](https://img.shields.io/badge/PyQt5-5.15+-orange.svg)
 ![License](https://img.shields.io/badge/license-Educational-yellow.svg)
 
-**一个功能强大的电脑鼠迷宫可视化与控制系统**
+**一个电脑鼠迷宫可视化与控制系统**
 
 开发者：石殷睿（苏州大学电子信息学院）  
 用途：电子系统课程设计  
