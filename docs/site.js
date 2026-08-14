@@ -172,7 +172,8 @@ async function setupMaze() {
   if (!canvas) return;
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
+  const THREE = await import("three");
+  const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
 
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -245,23 +246,20 @@ async function setupMaze() {
   maze.add(trail);
 
   const mouse = new THREE.Group();
-  const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0xf0b35a, roughness: 0.38, metalness: 0.12 });
-  const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x202b28, roughness: 0.55, metalness: 0.22 });
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.14, 0.46), bodyMaterial);
-  mouse.add(body);
-  const top = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.1, 0.24), darkMaterial);
-  top.position.y = 0.12;
-  mouse.add(top);
-  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.22, 4), darkMaterial);
-  nose.rotation.x = Math.PI / 2;
-  nose.position.set(0, 0.08, 0.28);
-  mouse.add(nose);
-  const light = new THREE.Mesh(
-    new THREE.SphereGeometry(0.045, 12, 12),
-    new THREE.MeshStandardMaterial({ color: 0xffe2b0, emissive: 0xffd18a, emissiveIntensity: 1.4 })
+  const gltf = await new GLTFLoader().loadAsync("./assets/model.glb");
+  const model = gltf.scene || gltf.scenes[0];
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const targetSize = 0.72;
+  const scale = targetSize / Math.max(size.x, size.y, size.z);
+  model.scale.setScalar(scale);
+  model.position.set(
+    -center.x * scale,
+    -center.y * scale + size.y * scale / 2,
+    -center.z * scale
   );
-  light.position.set(0, 0.14, 0.2);
-  mouse.add(light);
+  mouse.add(model);
   maze.add(mouse);
 
   const hemisphere = new THREE.HemisphereLight(0xd8fff0, 0x04100c, 2.1);
@@ -345,7 +343,7 @@ async function setupMaze() {
     camera.lookAt(4, pose.lookY, 4);
 
     mouse.position.x += (state.point.x - mouse.position.x) * 0.14;
-    mouse.position.y = 0.08 + Math.sin(idle * 2.2) * 0.02;
+    mouse.position.y = 0.02 + Math.sin(idle * 2.2) * 0.012;
     mouse.position.z += (state.point.z - mouse.position.z) * 0.14;
     mouse.rotation.y += (state.heading - mouse.rotation.y) * 0.16;
 
@@ -378,7 +376,7 @@ async function setupMaze() {
     camera.position.set(pose.x, pose.y, pose.z);
     camera.lookAt(4, pose.lookY, 4);
     const state = mouseState(0.58);
-    mouse.position.set(state.point.x, 0.08, state.point.z);
+    mouse.position.set(state.point.x, 0.02, state.point.z);
     mouse.rotation.y = state.heading;
     trail.geometry.setDrawRange(0, Math.floor(pathPoints.length * 0.58));
     renderer.render(scene, camera);
