@@ -236,8 +236,8 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
 .gallery-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.88), rgba(11, 17, 16, 0.94)); }
 .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
 .shot { position: relative; margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(0, 0, 0, 0.28); }
-.shot img { width: 100%; height: auto; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-.shot:hover img { transform: scale(1.025); }
+.shot img { width: 100%; height: auto; transition: filter 0.5s ease; }
+.shot:hover img { filter: brightness(1.07); }
 .shot figcaption { padding: 14px 16px; color: var(--ink-soft); border-top: 1px solid var(--line); font: 10px var(--mono); letter-spacing: 0.03em; }
 
 .releases-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.92), rgba(11, 17, 16, 0.84)); }

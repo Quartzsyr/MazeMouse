@@ -37,6 +37,20 @@ function mix(start, end, progress) {
   return start + (end - start) * progress;
 }
 
+function createGlowTexture(color, THREE) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 64;
+  const context = canvas.getContext("2d");
+  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+  gradient.addColorStop(0.28, color);
+  gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(canvas);
+}
+
 function formatNumber(value) {
   return new Intl.NumberFormat("zh-CN").format(value);
 }
@@ -167,6 +181,35 @@ function setupReveals() {
   });
 }
 
+function setupParallax() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const items = document.querySelectorAll("[data-parallax]");
+  if (!items.length) return;
+
+  let ticking = false;
+  const update = () => {
+    const viewportHeight = window.innerHeight;
+    items.forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      const center = rect.top + rect.height / 2 - viewportHeight / 2;
+      const speed = parseFloat(element.dataset.parallax || "0.08");
+      const offset = center * speed * -1;
+      element.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+    });
+    ticking = false;
+  };
+
+  const requestUpdate = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  };
+
+  window.addEventListener("scroll", requestUpdate, { passive: true });
+  window.addEventListener("resize", requestUpdate, { passive: true });
+  update();
+}
+
 async function setupMaze() {
   const canvas = document.querySelector("#maze-canvas");
   if (!canvas) return;
@@ -204,6 +247,13 @@ async function setupMaze() {
     roughness: 0.62,
     metalness: 0.16
   });
+  const wallTopMaterial = new THREE.MeshStandardMaterial({
+    color: 0x2f6a58,
+    roughness: 0.45,
+    metalness: 0.2,
+    emissive: 0x173b2e,
+    emissiveIntensity: 0.7
+  });
 
   SEGMENTS.forEach(([x1, z1, x2, z2]) => {
     const vertical = x1 === x2;
@@ -213,7 +263,21 @@ async function setupMaze() {
     const wall = new THREE.Mesh(new THREE.BoxGeometry(width, 0.52, depth), wallMaterial);
     wall.position.set((x1 + x2) / 2, 0.26, (z1 + z2) / 2);
     maze.add(wall);
+
+    const topWidth = vertical ? 0.075 : length;
+    const topDepth = vertical ? length : 0.075;
+    const topStrip = new THREE.Mesh(new THREE.BoxGeometry(topWidth, 0.015, topDepth), wallTopMaterial);
+    topStrip.position.set((x1 + x2) / 2, 0.5275, (z1 + z2) / 2);
+    maze.add(topStrip);
   });
+
+  const scanLine = new THREE.Mesh(
+    new THREE.PlaneGeometry(8, 0.045),
+    new THREE.MeshBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.14, depthWrite: false, blending: THREE.AdditiveBlending })
+  );
+  scanLine.rotation.x = -Math.PI / 2;
+  scanLine.position.y = 0.035;
+  maze.add(scanLine);
 
   const padGeometry = new THREE.CylinderGeometry(0.24, 0.24, 0.035, 28);
   const startPad = new THREE.Mesh(
@@ -240,10 +304,25 @@ async function setupMaze() {
   trailGeometry.setAttribute("position", new THREE.BufferAttribute(trailPositions, 3));
   const trail = new THREE.Points(
     trailGeometry,
-    new THREE.PointsMaterial({ color: 0xf0b35a, size: 0.14, transparent: true, opacity: 0.86 })
+    new THREE.PointsMaterial({
+      color: 0xf0b35a,
+      size: 0.24,
+      map: createGlowTexture("#f0b35a", THREE),
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    })
   );
   trail.frustumCulled = false;
   maze.add(trail);
+
+  const trailLine = new THREE.Line(
+    trailGeometry,
+    new THREE.LineBasicMaterial({ color: 0xf0b35a, transparent: true, opacity: 0.34 })
+  );
+  trailLine.frustumCulled = false;
+  maze.add(trailLine);
 
   const mouse = new THREE.Group();
   const gltf = await new GLTFLoader().loadAsync("./assets/model.glb");
@@ -261,6 +340,56 @@ async function setupMaze() {
     -center.z * scale
   );
   mouse.add(model);
+
+  const carAccessories = new THREE.Group();
+  const headlightMaterial = new THREE.MeshStandardMaterial({
+    color: 0xfff3c4,
+    emissive: 0xffe6a0,
+    emissiveIntensity: 2.6
+  });
+  const taillightMaterial = new THREE.MeshStandardMaterial({
+    color: 0xff4d4d,
+    emissive: 0xff2222,
+    emissiveIntensity: 2.6
+  });
+
+  const headlightSphere = (x, z) => {
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 12), headlightMaterial);
+    sphere.position.set(x, 0.08, z);
+    carAccessories.add(sphere);
+  };
+  headlightSphere(-0.13, 0.38);
+  headlightSphere(0.13, 0.38);
+
+  const taillightSphere = (x, z) => {
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 12), taillightMaterial);
+    sphere.position.set(x, 0.08, z);
+    carAccessories.add(sphere);
+  };
+  taillightSphere(-0.13, -0.38);
+  taillightSphere(0.13, -0.38);
+
+  const frontLight = new THREE.PointLight(0xffe9b8, 2.4, 1.8, 2);
+  frontLight.position.set(0, 0.16, 0.75);
+  carAccessories.add(frontLight);
+
+  const rearLight = new THREE.PointLight(0xff3030, 1.0, 1.0, 2);
+  rearLight.position.set(0, 0.12, -0.58);
+  carAccessories.add(rearLight);
+
+  const sensorLineMaterial = new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.42 });
+  const addSensorLine = (from, to) => {
+    const line = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([from, to]),
+      sensorLineMaterial
+    );
+    carAccessories.add(line);
+  };
+  addSensorLine(new THREE.Vector3(0, 0.035, 0.44), new THREE.Vector3(0, 0.035, 0.78));
+  addSensorLine(new THREE.Vector3(-0.28, 0.035, 0.16), new THREE.Vector3(-0.74, 0.035, 0.16));
+  addSensorLine(new THREE.Vector3(0.28, 0.035, 0.16), new THREE.Vector3(0.74, 0.035, 0.16));
+
+  mouse.add(carAccessories);
   maze.add(mouse);
 
   const hemisphere = new THREE.HemisphereLight(0xd8fff0, 0x04100c, 2.1);
@@ -351,6 +480,7 @@ async function setupMaze() {
     trail.geometry.setDrawRange(0, Math.max(2, Math.floor(mouseProgress * pathPoints.length + 1)));
     trail.material.opacity = mix(0.55, 0.92, mouseProgress);
 
+    scanLine.position.z = 4 + Math.sin(time * 0.00035) * 4;
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);
   }
@@ -387,6 +517,7 @@ async function setupMaze() {
 }
 
 setupReveals();
+setupParallax();
 setupMaze().catch(() => {
   document.querySelector(".maze-stage")?.classList.add("three-unavailable");
 });
