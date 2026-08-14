@@ -719,7 +719,7 @@ async function setupMaze() {
   const createRipple = (color, x, z) => {
     const group = new THREE.Group();
     group.position.set(x, 0.032, z);
-    const rings = [0, 1, 2].map((index) => {
+    const rings = [0, 1].map((index) => {
       const ring = new THREE.Mesh(
         new THREE.RingGeometry(0.82, 1.0, 40),
         new THREE.MeshBasicMaterial({
@@ -727,12 +727,11 @@ async function setupMaze() {
           transparent: true,
           opacity: 0,
           side: THREE.DoubleSide,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending
+          depthWrite: false
         })
       );
       ring.rotation.x = -Math.PI / 2;
-      ring.userData.offset = index / 3;
+      ring.userData.offset = index / 2;
       group.add(ring);
       return ring;
     });
@@ -977,10 +976,10 @@ async function setupMaze() {
     const rippleTime = time * 0.001;
     [startRipples, goalRipples].forEach((ripples) => {
       ripples.forEach((ring) => {
-        const duration = 2.2;
+        const duration = 3.6;
         const progress = ((rippleTime / duration) + ring.userData.offset) % 1;
-        ring.scale.setScalar(0.12 + progress * 0.88);
-        ring.material.opacity = (1 - progress) * 0.5;
+        ring.scale.setScalar(0.16 + progress * 0.72);
+        ring.material.opacity = (1 - progress) * 0.26;
       });
     });
 
@@ -1020,8 +1019,8 @@ async function setupMaze() {
     trail.geometry.setDrawRange(0, Math.floor(pathPoints.length * 0.58));
     [startRipples, goalRipples].forEach((ripples) => {
       ripples.forEach((ring, index) => {
-        ring.scale.setScalar(0.12 + (index / 3) * 0.88);
-        ring.material.opacity = (1 - index / 3) * 0.5;
+        ring.scale.setScalar(0.16 + (index / 2) * 0.72);
+        ring.material.opacity = (1 - index / 2) * 0.26;
       });
     });
     renderer.render(scene, camera);
