@@ -385,6 +385,7 @@ async function setupMaze() {
 
   mouse.add(carAccessories);
   maze.add(mouse);
+  document.querySelector("#scene-loader")?.classList.add("is-hidden");
 
   const hemisphere = new THREE.HemisphereLight(0xd8fff0, 0x04100c, 2.1);
   const key = new THREE.DirectionalLight(0xffffff, 2.8);
@@ -513,5 +514,6 @@ setupReveals();
 setupParallax();
 setupMaze().catch(() => {
   document.querySelector(".maze-stage")?.classList.add("three-unavailable");
+  document.querySelector("#scene-loader")?.classList.add("is-hidden");
 });
 loadReleases();

@@ -196,6 +196,28 @@ h1 em, h2 em { color: var(--accent-soft); font-style: normal; }
 .scroll-indicator i { position: relative; display: block; width: 31px; height: 1px; background: currentColor; overflow: hidden; }
 .scroll-indicator i::after { position: absolute; content: ""; inset: 0 auto 0 -100%; width: 70%; background: var(--accent); animation: scan 2.4s infinite ease-in-out; }
 
+.scene-loader {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(11, 17, 16, 0.74);
+  color: var(--ink-soft);
+  font: 11px var(--mono);
+  letter-spacing: 0.03em;
+  pointer-events: none;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.scene-loader.is-hidden { opacity: 0; visibility: hidden; }
+.scene-loader .loader-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite alternate ease-in-out; }
+
 .section { padding: 120px 0; background: var(--surface-soft); }
 .overview-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.78), rgba(11, 17, 16, 0.88)); }
 .features-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.86), rgba(11, 17, 16, 0.92)); }
@@ -281,6 +303,7 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
 .reveal.is-visible { opacity: 1; transform: none; }
 
 @keyframes scan { 0% { transform: translateX(0); } 55%, 100% { transform: translateX(280%); } }
+@keyframes pulse { from { opacity: 0.35; transform: scale(0.8); } to { opacity: 1; transform: scale(1.15); } }
 
 @media (max-width: 900px) {
   :root { --container: min(100% - 48px, 1160px); }
