@@ -254,6 +254,7 @@ async function setupMaze() {
   const targetSize = 0.72;
   const scale = targetSize / Math.max(size.x, size.y, size.z);
   model.scale.setScalar(scale);
+  model.rotation.y = -Math.PI / 2;
   model.position.set(
     -center.x * scale,
     -center.y * scale + size.y * scale / 2,
