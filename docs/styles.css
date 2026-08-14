@@ -217,6 +217,8 @@ h1 em, h2 em { color: var(--accent-soft); font-style: normal; }
 }
 .scene-loader.is-hidden { opacity: 0; visibility: hidden; }
 .scene-loader .loader-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite alternate ease-in-out; }
+.scene-loader .loader-bar { position: relative; width: 76px; height: 2px; overflow: hidden; border-radius: 999px; background: rgba(237, 243, 240, 0.16); }
+.scene-loader .loader-bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.2s ease; }
 
 .section { padding: 120px 0; background: var(--surface-soft); }
 .overview-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.78), rgba(11, 17, 16, 0.88)); }
@@ -276,6 +278,7 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
 .release-title strong { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
 .release-title .tag { padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink-soft); font: 9px var(--mono); letter-spacing: 0.04em; }
 .release-title .badge { padding: 4px 8px; border-radius: 5px; background: rgba(240, 179, 90, 0.14); color: var(--amber); font: 9px var(--mono); letter-spacing: 0.04em; }
+.release-title .badge.latest { background: rgba(52, 211, 153, 0.16); color: var(--accent-soft); }
 .release-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 8px; color: var(--muted); font: 10px var(--mono); letter-spacing: 0.03em; }
 .release-download { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border: 1px solid rgba(52, 211, 153, 0.45); border-radius: 10px; color: var(--accent-soft); font: 11px var(--mono); letter-spacing: 0.03em; transition: background-color 0.25s ease, color 0.25s ease; }
 .release-download:hover { background: rgba(52, 211, 153, 0.12); color: #fff; }

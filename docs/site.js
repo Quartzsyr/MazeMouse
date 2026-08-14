@@ -51,6 +51,33 @@ function createGlowTexture(color, THREE) {
   return new THREE.CanvasTexture(canvas);
 }
 
+async function loadModel(url, GLTFLoader, onProgress) {
+  const response = await fetch(url);
+  if (!response.body) {
+    return new GLTFLoader().loadAsync(url);
+  }
+  const total = Number(response.headers.get("content-length") || 0);
+  const reader = response.body.getReader();
+  const chunks = [];
+  let received = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.length;
+    if (total) onProgress(Math.min(received / total, 1));
+  }
+
+  const blob = new Blob(chunks);
+  const blobUrl = URL.createObjectURL(blob);
+  try {
+    return await new GLTFLoader().loadAsync(blobUrl);
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
+}
+
 function formatNumber(value) {
   return new Intl.NumberFormat("zh-CN").format(value);
 }
@@ -78,6 +105,17 @@ async function loadReleases() {
       (assetTotal, asset) => assetTotal + (asset.download_count || 0), 0
     ), 0);
     setCount(formatNumber(totalDownloads));
+
+    fetch(`https://api.github.com/repos/${repository}`, {
+      headers: { Accept: "application/vnd.github+json" },
+    }).then((res) => res.json()).then((repo) => {
+      document.querySelectorAll("[data-star-count]").forEach((node) => {
+        node.textContent = formatNumber(repo.stargazers_count || 0);
+      });
+      document.querySelectorAll("[data-watch-count]").forEach((node) => {
+        node.textContent = formatNumber(repo.subscribers_count || 0);
+      });
+    }).catch(() => {});
 
     const installerRelease = releases.find((release) => (release.assets || []).some(
       (asset) => asset.name.toLowerCase().endsWith(".exe")
@@ -126,6 +164,13 @@ async function loadReleases() {
         badge.className = "badge";
         badge.textContent = "预发布";
         titleRow.appendChild(badge);
+      }
+
+      if (release === installerRelease) {
+        const latest = document.createElement("span");
+        latest.className = "badge latest";
+        latest.textContent = "Latest";
+        titleRow.appendChild(latest);
       }
 
       const meta = document.createElement("div");
@@ -327,7 +372,15 @@ async function setupMaze() {
   maze.add(trailLine);
 
   const mouse = new THREE.Group();
-  const gltf = await new GLTFLoader().loadAsync("./assets/model.glb");
+  const loaderElement = document.querySelector("#scene-loader");
+  const loaderText = loaderElement?.querySelector(".loader-text");
+  const loaderBar = loaderElement?.querySelector(".loader-bar i");
+  const updateLoadProgress = (fraction) => {
+    const percent = Math.round(fraction * 100);
+    if (loaderText) loaderText.textContent = `正在加载小车模型… ${percent}%`;
+    if (loaderBar) loaderBar.style.width = `${percent}%`;
+  };
+  const gltf = await loadModel("./assets/model.glb", GLTFLoader, updateLoadProgress);
   const model = gltf.scene || gltf.scenes[0];
   const box = new THREE.Box3().setFromObject(model);
   const size = box.getSize(new THREE.Vector3());
