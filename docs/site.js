@@ -271,14 +271,6 @@ async function setupMaze() {
     maze.add(topStrip);
   });
 
-  const scanLine = new THREE.Mesh(
-    new THREE.PlaneGeometry(8, 0.045),
-    new THREE.MeshBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.14, depthWrite: false, blending: THREE.AdditiveBlending })
-  );
-  scanLine.rotation.x = -Math.PI / 2;
-  scanLine.position.y = 0.035;
-  maze.add(scanLine);
-
   const padGeometry = new THREE.CylinderGeometry(0.24, 0.24, 0.035, 28);
   const startPad = new THREE.Mesh(
     padGeometry,
@@ -356,6 +348,7 @@ async function setupMaze() {
   const headlightSphere = (x, z) => {
     const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 12), headlightMaterial);
     sphere.position.set(x, 0.08, z);
+    sphere.visible = false;
     carAccessories.add(sphere);
   };
   headlightSphere(-0.13, 0.38);
@@ -364,6 +357,7 @@ async function setupMaze() {
   const taillightSphere = (x, z) => {
     const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 12), taillightMaterial);
     sphere.position.set(x, 0.08, z);
+    sphere.visible = false;
     carAccessories.add(sphere);
   };
   taillightSphere(-0.13, -0.38);
@@ -480,7 +474,6 @@ async function setupMaze() {
     trail.geometry.setDrawRange(0, Math.max(2, Math.floor(mouseProgress * pathPoints.length + 1)));
     trail.material.opacity = mix(0.55, 0.92, mouseProgress);
 
-    scanLine.position.z = 4 + Math.sin(time * 0.00035) * 4;
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);
   }
