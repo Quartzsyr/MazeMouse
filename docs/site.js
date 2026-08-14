@@ -275,6 +275,8 @@ function setupLanguage() {
 let audioContext = null;
 let motorGain = null;
 let motorOscillator = null;
+let audioAnalyser = null;
+let frequencyData = null;
 let soundEnabled = true;
 
 function setMotorLevel(level) {
@@ -296,9 +298,13 @@ function ensureAudio() {
     motorOscillator = audioContext.createOscillator();
     motorOscillator.type = "triangle";
     motorOscillator.frequency.value = 58;
+    audioAnalyser = audioContext.createAnalyser();
+    audioAnalyser.fftSize = 32;
+    frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
     motorOscillator.connect(filter);
     filter.connect(motorGain);
-    motorGain.connect(audioContext.destination);
+    motorGain.connect(audioAnalyser);
+    audioAnalyser.connect(audioContext.destination);
     motorOscillator.start();
   }
   if (audioContext.state === "suspended") audioContext.resume();
@@ -313,6 +319,21 @@ function setupSound() {
     button.setAttribute("aria-pressed", String(soundEnabled));
     button.setAttribute("aria-label", soundEnabled ? "关闭电机音效" : "开启电机音效");
   };
+
+  const bars = Array.from(button.querySelectorAll(".wave-bars i"));
+  const updateSpectrum = () => {
+    if (!soundEnabled || !audioAnalyser) {
+      bars.forEach((bar) => { bar.style.transform = "scaleY(0.15)"; });
+    } else {
+      audioAnalyser.getByteFrequencyData(frequencyData);
+      bars.forEach((bar, index) => {
+        const value = frequencyData[Math.min(index, frequencyData.length - 1)] / 255;
+        bar.style.transform = `scaleY(${(0.2 + value * 0.8).toFixed(2)})`;
+      });
+    }
+    requestAnimationFrame(updateSpectrum);
+  };
+  updateSpectrum();
 
   button.addEventListener("click", () => {
     ensureAudio();
