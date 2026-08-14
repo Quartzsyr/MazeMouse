@@ -716,20 +716,32 @@ async function setupMaze() {
     maze.add(topStrip);
   });
 
-  const padGeometry = new THREE.CylinderGeometry(0.24, 0.24, 0.035, 28);
-  const startPad = new THREE.Mesh(
-    padGeometry,
-    new THREE.MeshStandardMaterial({ color: 0x34d399, roughness: 0.35, emissive: 0x0f5138, emissiveIntensity: 0.65 })
-  );
-  startPad.position.set(0.5, 0.018, 0.5);
-  maze.add(startPad);
+  const createRipple = (color, x, z) => {
+    const group = new THREE.Group();
+    group.position.set(x, 0.032, z);
+    const rings = [0, 1, 2].map((index) => {
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(0.82, 1.0, 40),
+        new THREE.MeshBasicMaterial({
+          color,
+          transparent: true,
+          opacity: 0,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      ring.rotation.x = -Math.PI / 2;
+      ring.userData.offset = index / 3;
+      group.add(ring);
+      return ring;
+    });
+    maze.add(group);
+    return rings;
+  };
 
-  const goalPad = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.3, 0.3, 0.035, 28),
-    new THREE.MeshStandardMaterial({ color: 0xf0b35a, roughness: 0.35, emissive: 0x59351a, emissiveIntensity: 0.65 })
-  );
-  goalPad.position.set(4.5, 0.018, 4.5);
-  maze.add(goalPad);
+  const startRipples = createRipple(0x34d399, 0.5, 0.5);
+  const goalRipples = createRipple(0xf0b35a, 4.5, 4.5);
 
   const trailGeometry = new THREE.BufferGeometry();
   const trailPositions = new Float32Array(pathPoints.length * 3);
@@ -962,6 +974,16 @@ async function setupMaze() {
     trail.geometry.setDrawRange(0, Math.max(2, Math.floor(mouseProgress * pathPoints.length + 1)));
     trail.material.opacity = mix(0.55, 0.92, mouseProgress);
 
+    const rippleTime = time * 0.001;
+    [startRipples, goalRipples].forEach((ripples) => {
+      ripples.forEach((ring) => {
+        const duration = 2.2;
+        const progress = ((rippleTime / duration) + ring.userData.offset) % 1;
+        ring.scale.setScalar(0.12 + progress * 0.88);
+        ring.material.opacity = (1 - progress) * 0.5;
+      });
+    });
+
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);
   }
@@ -996,6 +1018,12 @@ async function setupMaze() {
     sensorMaterials.left.color.set(hasWall(state.row, state.col, leftDirection) ? 0xff4d4d : 0x34d399);
     sensorMaterials.right.color.set(hasWall(state.row, state.col, rightDirection) ? 0xff4d4d : 0x34d399);
     trail.geometry.setDrawRange(0, Math.floor(pathPoints.length * 0.58));
+    [startRipples, goalRipples].forEach((ripples) => {
+      ripples.forEach((ring, index) => {
+        ring.scale.setScalar(0.12 + (index / 3) * 0.88);
+        ring.material.opacity = (1 - index / 3) * 0.5;
+      });
+    });
     renderer.render(scene, camera);
   } else {
     frameId = requestAnimationFrame(render);
