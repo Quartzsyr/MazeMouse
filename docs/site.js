@@ -272,6 +272,76 @@ function setupLanguage() {
   });
 }
 
+let audioContext = null;
+let motorGain = null;
+let motorOscillator = null;
+let soundEnabled = true;
+
+function setMotorLevel(level) {
+  if (!motorGain || !audioContext) return;
+  if (!soundEnabled) level = 0;
+  motorGain.gain.setTargetAtTime(level, audioContext.currentTime, 0.08);
+}
+
+function ensureAudio() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return;
+  if (!audioContext) {
+    audioContext = new AudioContextClass();
+    motorGain = audioContext.createGain();
+    motorGain.gain.value = 0;
+    const filter = audioContext.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 260;
+    motorOscillator = audioContext.createOscillator();
+    motorOscillator.type = "sawtooth";
+    motorOscillator.frequency.value = 72;
+    motorOscillator.connect(filter);
+    filter.connect(motorGain);
+    motorGain.connect(audioContext.destination);
+    motorOscillator.start();
+  }
+  if (audioContext.state === "suspended") audioContext.resume();
+}
+
+function setupSound() {
+  const button = document.querySelector("#sound-toggle");
+  if (!button) return;
+
+  const updateIcon = () => {
+    button.textContent = soundEnabled ? "🔊" : "🔇";
+    button.setAttribute("aria-pressed", String(soundEnabled));
+    button.setAttribute("aria-label", soundEnabled ? "关闭电机音效" : "开启电机音效");
+  };
+
+  button.addEventListener("click", () => {
+    ensureAudio();
+    soundEnabled = !soundEnabled;
+    updateIcon();
+    setMotorLevel(0);
+  });
+
+  document.addEventListener("pointerdown", () => {
+    ensureAudio();
+  }, { once: true });
+
+  let lastScrollY = window.scrollY;
+  let scrollTimer = 0;
+  window.addEventListener("scroll", () => {
+    ensureAudio();
+    const speed = Math.min(Math.abs(window.scrollY - lastScrollY), 90);
+    lastScrollY = window.scrollY;
+    setMotorLevel(Math.min(0.5, 0.08 + speed * 0.02));
+    if (motorOscillator && audioContext) {
+      motorOscillator.frequency.setTargetAtTime(72 + speed * 0.35, audioContext.currentTime, 0.08);
+    }
+    clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(() => setMotorLevel(0), 120);
+  }, { passive: true });
+
+  updateIcon();
+}
+
 async function loadReleases() {
   const repository = "Quartzsyr/MazeMouse";
   const countNodes = document.querySelectorAll("[data-download-count]");
@@ -558,6 +628,22 @@ async function setupMaze() {
   const worldPoint = ([row, col]) => new THREE.Vector3(col + 0.5, 0, row + 0.5);
   const pathPoints = PATH.map(worldPoint);
 
+  const wallSet = new Set();
+  SEGMENTS.forEach(([x1, z1, x2, z2]) => {
+    wallSet.add(`${x1},${z1},${x2},${z2}`);
+    wallSet.add(`${x2},${z2},${x1},${z1}`);
+  });
+  const hasWall = (row, col, direction) => {
+    const [a, b, c, d] = direction === 0
+      ? [col, row, col + 1, row]
+      : direction === 1
+        ? [col + 1, row, col + 1, row + 1]
+        : direction === 2
+          ? [col, row + 1, col + 1, row + 1]
+          : [col, row, col, row + 1];
+    return wallSet.has(`${a},${b},${c},${d}`);
+  };
+
   const floor = new THREE.Mesh(
     new THREE.BoxGeometry(8, 0.08, 8),
     new THREE.MeshStandardMaterial({ color: 0x0c1916, roughness: 0.82, metalness: 0.08 })
@@ -706,17 +792,21 @@ async function setupMaze() {
   rearLight.position.set(0, 0.12, -0.58);
   carAccessories.add(rearLight);
 
-  const sensorLineMaterial = new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.42 });
-  const addSensorLine = (from, to) => {
-    const line = new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints([from, to]),
-      sensorLineMaterial
-    );
-    carAccessories.add(line);
+  const sensorMaterials = {
+    front: new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.7 }),
+    left: new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.7 }),
+    right: new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.7 })
   };
-  addSensorLine(new THREE.Vector3(0, 0.035, 0.44), new THREE.Vector3(0, 0.035, 0.78));
-  addSensorLine(new THREE.Vector3(-0.28, 0.035, 0.16), new THREE.Vector3(-0.74, 0.035, 0.16));
-  addSensorLine(new THREE.Vector3(0.28, 0.035, 0.16), new THREE.Vector3(0.74, 0.035, 0.16));
+  const frontLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0, 0.035, 0.44), new THREE.Vector3(0, 0.035, 0.78)
+  ]), sensorMaterials.front);
+  const leftLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-0.28, 0.035, 0.16), new THREE.Vector3(-0.74, 0.035, 0.16)
+  ]), sensorMaterials.left);
+  const rightLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0.28, 0.035, 0.16), new THREE.Vector3(0.74, 0.035, 0.16)
+  ]), sensorMaterials.right);
+  carAccessories.add(frontLine, leftLine, rightLine);
 
   mouse.add(carAccessories);
   maze.add(mouse);
@@ -787,7 +877,12 @@ async function setupMaze() {
       mix(current.z, next.z, local)
     );
     const heading = Math.atan2(next.x - current.x, next.z - current.z);
-    return { point, heading };
+    const row = Math.round(current.z - 0.5);
+    const col = Math.round(current.x - 0.5);
+    const dx = next.x - current.x;
+    const dz = next.z - current.z;
+    const cardinal = dx > 0 ? 1 : dx < 0 ? 3 : dz > 0 ? 2 : 0;
+    return { point, heading, row, col, cardinal };
   }
 
   function render(time) {
@@ -806,6 +901,15 @@ async function setupMaze() {
     mouse.position.y = 0.02 + Math.sin(idle * 2.2) * 0.012;
     mouse.position.z += (state.point.z - mouse.position.z) * 0.14;
     mouse.rotation.y += (state.heading - mouse.rotation.y) * 0.16;
+
+    const leftDirection = (state.cardinal + 3) % 4;
+    const rightDirection = (state.cardinal + 1) % 4;
+    const frontBlocked = hasWall(state.row, state.col, state.cardinal);
+    const leftBlocked = hasWall(state.row, state.col, leftDirection);
+    const rightBlocked = hasWall(state.row, state.col, rightDirection);
+    sensorMaterials.front.color.set(frontBlocked ? 0xff4d4d : 0x34d399);
+    sensorMaterials.left.color.set(leftBlocked ? 0xff4d4d : 0x34d399);
+    sensorMaterials.right.color.set(rightBlocked ? 0xff4d4d : 0x34d399);
 
     trail.geometry.setDrawRange(0, Math.max(2, Math.floor(mouseProgress * pathPoints.length + 1)));
     trail.material.opacity = mix(0.55, 0.92, mouseProgress);
@@ -838,6 +942,11 @@ async function setupMaze() {
     const state = mouseState(0.58);
     mouse.position.set(state.point.x, 0.02, state.point.z);
     mouse.rotation.y = state.heading;
+    const leftDirection = (state.cardinal + 3) % 4;
+    const rightDirection = (state.cardinal + 1) % 4;
+    sensorMaterials.front.color.set(hasWall(state.row, state.col, state.cardinal) ? 0xff4d4d : 0x34d399);
+    sensorMaterials.left.color.set(hasWall(state.row, state.col, leftDirection) ? 0xff4d4d : 0x34d399);
+    sensorMaterials.right.color.set(hasWall(state.row, state.col, rightDirection) ? 0xff4d4d : 0x34d399);
     trail.geometry.setDrawRange(0, Math.floor(pathPoints.length * 0.58));
     renderer.render(scene, camera);
   } else {
@@ -850,6 +959,7 @@ setupParallax();
 setupCarousel();
 setupLanguage();
 setupTilt();
+setupSound();
 setupMaze().catch(() => {
   document.querySelector(".maze-stage")?.classList.add("three-unavailable");
   document.querySelector("#scene-loader")?.classList.add("is-hidden");

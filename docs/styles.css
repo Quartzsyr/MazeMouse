@@ -224,6 +224,8 @@ h1 em, h2 em { color: var(--accent-soft); font-style: normal; }
 .scene-loader .loader-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite alternate ease-in-out; }
 .scene-loader .loader-bar { position: relative; width: 76px; height: 2px; overflow: hidden; border-radius: 999px; background: rgba(237, 243, 240, 0.16); }
 .scene-loader .loader-bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.2s ease; }
+.sound-toggle { position: fixed; right: 24px; bottom: 24px; z-index: 30; display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: rgba(11, 17, 16, 0.74); color: var(--ink-soft); cursor: pointer; font-size: 16px; transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease; }
+.sound-toggle:hover { color: var(--accent-soft); border-color: rgba(52, 211, 153, 0.5); box-shadow: 0 0 18px rgba(52, 211, 153, 0.25); }
 
 .section { padding: 120px 0; background: var(--surface-soft); }
 .overview-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.78), rgba(11, 17, 16, 0.88)); }
