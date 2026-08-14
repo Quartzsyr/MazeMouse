@@ -258,17 +258,20 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
 .code-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 22px; color: var(--muted); font: 9px var(--mono); letter-spacing: 0.04em; }
 
 .gallery-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.88), rgba(11, 17, 16, 0.94)); }
-.gallery-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 26px; align-items: start; }
-.shot { position: relative; grid-column: span 4; margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(0, 0, 0, 0.28); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28); transition: border-color 0.4s ease, box-shadow 0.4s ease; }
-.shot-main { grid-column: span 7; }
-.shot-leaderboard { grid-column: span 5; margin-top: 70px; }
-.shot:nth-child(4) { margin-top: 34px; }
-.shot:nth-child(5) { margin-top: 12px; }
-.shot:hover { border-color: rgba(52, 211, 153, 0.42); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.36); }
-.shot img { width: 100%; height: auto; display: block; transition: filter 0.5s ease; }
-.shot:hover img { filter: brightness(1.06); }
-.shot figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 8px; padding: 44px 16px 14px; color: var(--ink-soft); background: linear-gradient(180deg, rgba(8, 13, 12, 0), rgba(8, 13, 12, 0.92)); font: 10px var(--mono); letter-spacing: 0.03em; }
+.gallery-carousel { position: relative; }
+.carousel-viewport { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(0, 0, 0, 0.28); }
+.carousel-track { display: flex; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.carousel-slide { position: relative; flex: 0 0 100%; min-width: 0; margin: 0; }
+.carousel-slide img { display: block; width: 100%; height: auto; }
+.carousel-slide figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 8px; padding: 44px 16px 14px; color: var(--ink-soft); background: linear-gradient(180deg, rgba(8, 13, 12, 0), rgba(8, 13, 12, 0.92)); font: 10px var(--mono); letter-spacing: 0.03em; }
 .shot-index { color: var(--accent-soft); font: 10px var(--mono); }
+.carousel-controls { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 22px; }
+.carousel-btn { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink-soft); background: transparent; cursor: pointer; font-size: 18px; transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease; }
+.carousel-btn:hover { color: var(--accent-soft); border-color: rgba(52, 211, 153, 0.5); background: rgba(52, 211, 153, 0.08); }
+.carousel-dots { position: relative; display: flex; align-items: center; gap: 14px; }
+.carousel-dot { width: 9px; height: 9px; padding: 0; border: 1px solid var(--line); border-radius: 3px; background: transparent; cursor: pointer; transition: background-color 0.25s ease, border-color 0.25s ease; }
+.carousel-dot.is-active { background: var(--accent); border-color: var(--accent); }
+.car-marker { position: absolute; top: 18px; left: 0; color: var(--accent-soft); transform: translateX(-50%); transition: left 0.55s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; }
 
 .releases-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.92), rgba(11, 17, 16, 0.84)); }
 .release-summary { display: flex; align-items: baseline; gap: 14px; margin-bottom: 30px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 14px; background: rgba(0, 0, 0, 0.22); }
@@ -343,8 +346,8 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
   .feature-grid { grid-template-columns: 1fr; margin-top: 0; }
   .feature-card { min-height: auto; }
   .feature-card h3 { margin-top: 28px; }
-  .gallery-grid { grid-template-columns: 1fr; gap: 20px; }
-  .shot, .shot-main, .shot-leaderboard { grid-column: span 1; margin-top: 0; }
+  .carousel-controls { gap: 12px; }
+  .carousel-btn { width: 36px; height: 36px; }
   .release-item { grid-template-columns: 1fr; align-items: start; }
   .closing-card { display: grid; padding: 50px 28px; }
   .footer-inner { display: grid; grid-template-columns: 1fr; gap: 10px; }

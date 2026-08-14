@@ -265,6 +265,55 @@ function setupParallax() {
   update();
 }
 
+function setupCarousel() {
+  const track = document.querySelector("#carousel-track");
+  const dots = Array.from(document.querySelectorAll(".carousel-dot"));
+  const marker = document.querySelector("#car-marker");
+  const previous = document.querySelector("#carousel-prev");
+  const next = document.querySelector("#carousel-next");
+  const viewport = document.querySelector("#carousel-viewport");
+
+  if (!track || !dots.length) return;
+
+  let index = 0;
+  const count = dots.length;
+
+  const update = () => {
+    track.style.transform = `translateX(-${index * 100}%)`;
+    dots.forEach((dot, dotIndex) => {
+      dot.classList.toggle("is-active", dotIndex === index);
+    });
+    const activeDot = dots[index];
+    if (marker && activeDot) {
+      marker.style.left = `${activeDot.offsetLeft + activeDot.offsetWidth / 2}px`;
+    }
+  };
+
+  const go = (nextIndex) => {
+    index = (nextIndex + count) % count;
+    update();
+  };
+
+  if (previous) previous.addEventListener("click", () => go(index - 1));
+  if (next) next.addEventListener("click", () => go(index + 1));
+  dots.forEach((dot) => {
+    dot.addEventListener("click", () => go(Number(dot.dataset.index || 0)));
+  });
+
+  let startX = 0;
+  if (viewport) {
+    viewport.addEventListener("touchstart", (event) => {
+      startX = event.touches[0].clientX;
+    }, { passive: true });
+    viewport.addEventListener("touchend", (event) => {
+      const deltaX = event.changedTouches[0].clientX - startX;
+      if (Math.abs(deltaX) > 40) go(index + (deltaX < 0 ? 1 : -1));
+    }, { passive: true });
+  }
+
+  update();
+}
+
 async function setupMaze() {
   const canvas = document.querySelector("#maze-canvas");
   if (!canvas) return;
@@ -575,6 +624,7 @@ async function setupMaze() {
 
 setupReveals();
 setupParallax();
+setupCarousel();
 setupMaze().catch(() => {
   document.querySelector(".maze-stage")?.classList.add("three-unavailable");
   document.querySelector("#scene-loader")?.classList.add("is-hidden");

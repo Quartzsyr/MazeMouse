@@ -171,27 +171,45 @@
           <p>主操作、成绩记录、日志、设置与轨迹记录。</p>
           <h2>界面，服务于调试。</h2>
         </div>
-        <div class="gallery-grid">
-          <figure class="shot shot-main" data-parallax="0.05">
-            <img src="./assets/main.png" alt="MazeMouse 主操作页截图" loading="lazy">
-            <figcaption><span class="shot-index">01</span>主操作页 · 串口、传感器与迷宫轨迹</figcaption>
-          </figure>
-          <figure class="shot shot-leaderboard" data-parallax="0.06">
-            <img src="./assets/leaderboard.png" alt="MazeMouse 成绩记录界面截图" loading="lazy">
-            <figcaption><span class="shot-index">02</span>成绩记录 · 排名、计时与得分</figcaption>
-          </figure>
-          <figure class="shot" data-parallax="0.05">
-            <img src="./assets/log.png" alt="MazeMouse 实时日志页截图" loading="lazy">
-            <figcaption><span class="shot-index">03</span>实时日志 · 数据收发与过滤</figcaption>
-          </figure>
-          <figure class="shot" data-parallax="0.06">
-            <img src="./assets/settings.png" alt="MazeMouse 设置页截图" loading="lazy">
-            <figcaption><span class="shot-index">04</span>设置页 · 主题、串口与启动项</figcaption>
-          </figure>
-          <figure class="shot" data-parallax="0.05">
-            <img src="./assets/replay.png" alt="MazeMouse 轨迹记录页截图" loading="lazy">
-            <figcaption><span class="shot-index">05</span>轨迹记录 · 回放、对比与导出</figcaption>
-          </figure>
+        <div class="gallery-carousel reveal">
+          <div class="carousel-viewport" id="carousel-viewport">
+            <div class="carousel-track" id="carousel-track">
+              <figure class="carousel-slide">
+                <img src="./assets/main.png" alt="MazeMouse 主操作页截图" loading="lazy">
+                <figcaption><span class="shot-index">01</span>主操作页 · 串口、传感器与迷宫轨迹</figcaption>
+              </figure>
+              <figure class="carousel-slide">
+                <img src="./assets/leaderboard.png" alt="MazeMouse 成绩记录界面截图" loading="lazy">
+                <figcaption><span class="shot-index">02</span>成绩记录 · 排名、计时与得分</figcaption>
+              </figure>
+              <figure class="carousel-slide">
+                <img src="./assets/log.png" alt="MazeMouse 实时日志页截图" loading="lazy">
+                <figcaption><span class="shot-index">03</span>实时日志 · 数据收发与过滤</figcaption>
+              </figure>
+              <figure class="carousel-slide">
+                <img src="./assets/settings.png" alt="MazeMouse 设置页截图" loading="lazy">
+                <figcaption><span class="shot-index">04</span>设置页 · 主题、串口与启动项</figcaption>
+              </figure>
+              <figure class="carousel-slide">
+                <img src="./assets/replay.png" alt="MazeMouse 轨迹记录页截图" loading="lazy">
+                <figcaption><span class="shot-index">05</span>轨迹记录 · 回放、对比与导出</figcaption>
+              </figure>
+            </div>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-btn prev" id="carousel-prev" type="button" aria-label="上一张">←</button>
+            <div class="carousel-dots" id="carousel-dots">
+              <button class="carousel-dot is-active" data-index="0" type="button" aria-label="第1张"></button>
+              <button class="carousel-dot" data-index="1" type="button" aria-label="第2张"></button>
+              <button class="carousel-dot" data-index="2" type="button" aria-label="第3张"></button>
+              <button class="carousel-dot" data-index="3" type="button" aria-label="第4张"></button>
+              <button class="carousel-dot" data-index="4" type="button" aria-label="第5张"></button>
+              <span class="car-marker" id="car-marker" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M5 11l1.5-4h8L17 11h1.5c.8 0 1.5.7 1.5 1.5v4c0 .8-.7 1.5-1.5 1.5H20v-1.5H4V18h-.5C2.7 18 2 17.3 2 16.5v-4C2 11.7 2.7 11 3.5 11H5zm1 1.5A1.5 1.5 0 1 0 6 15a1.5 1.5 0 0 0 0-2.5zm12 0A1.5 1.5 0 1 0 18 15a1.5 1.5 0 0 0 0-2.5z"/></svg>
+              </span>
+            </div>
+            <button class="carousel-btn next" id="carousel-next" type="button" aria-label="下一张">→</button>
+          </div>
         </div>
       </div>
     </section>
