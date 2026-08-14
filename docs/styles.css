@@ -258,7 +258,7 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
 .code-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 22px; color: var(--muted); font: 9px var(--mono); letter-spacing: 0.04em; }
 
 .gallery-section { background: linear-gradient(180deg, rgba(11, 17, 16, 0.88), rgba(11, 17, 16, 0.94)); }
-.gallery-carousel { position: relative; }
+.gallery-carousel { position: relative; max-width: 760px; margin: 0 auto; }
 .carousel-viewport { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: rgba(0, 0, 0, 0.28); }
 .carousel-track { display: flex; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .carousel-slide { position: relative; flex: 0 0 100%; min-width: 0; margin: 0; }
