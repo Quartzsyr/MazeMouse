@@ -13,6 +13,8 @@
 用途：电子系统课程设计  
 联系方式：yinrui_shi@163.com 
 
+
+🌟项目主页：https://mazemouse.musefilm.top
 >求路过的学弟学妹一个小小的STAR⭐~  
 <img width="296" height="120" alt="求星星" src="https://github.com/user-attachments/assets/78789cc4-6a8f-45d9-ace4-12b5267fba30" />
 
