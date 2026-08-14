@@ -144,13 +144,15 @@ main > .section > .container,
   text-transform: uppercase;
 }
 
-.eyebrow span { width: 25px; height: 1px; background: currentColor; }
+.eyebrow > span:first-child { width: 25px; height: 1px; background: currentColor; }
 
 h1, h2, h3, p { margin: 0; }
 h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.055em; }
 
 h1 { font-size: clamp(3.2rem, 5.4vw, 5.6rem); line-height: 1.06; }
 h1 em, h2 em { color: var(--accent-soft); font-style: normal; }
+.title-line { display: inline-block; }
+.title-line .char { display: inline-block; opacity: 0; transform: translateY(18px); animation: charIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: calc(var(--i) * 45ms); }
 
 .hero-lead { max-width: 520px; margin-top: 28px; color: rgba(237, 243, 240, 0.68); font-size: 15px; line-height: 1.9; }
 
@@ -320,6 +322,7 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
 
 @keyframes scan { 0% { transform: translateX(0); } 55%, 100% { transform: translateX(280%); } }
 @keyframes pulse { from { opacity: 0.35; transform: scale(0.8); } to { opacity: 1; transform: scale(1.15); } }
+@keyframes charIn { to { opacity: 1; transform: none; } }
 
 @media (max-width: 900px) {
   :root { --container: min(100% - 48px, 1160px); }
@@ -365,4 +368,5 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
   .reveal { opacity: 1 !important; transform: none !important; }
+  .title-line .char { opacity: 1 !important; transform: none !important; }
 }
