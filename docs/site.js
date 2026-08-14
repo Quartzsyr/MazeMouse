@@ -82,6 +82,196 @@ function formatNumber(value) {
   return new Intl.NumberFormat("zh-CN").format(value);
 }
 
+const translations = {
+  zh: {
+    "nav.features": "核心功能",
+    "nav.interface": "界面",
+    "nav.protocol": "通信协议",
+    "nav.downloads": "下载",
+    "hero.eyebrow": "苏州大学电子信息学院 · 电子系统课程设计",
+    "hero.title.1": "让迷宫，",
+    "hero.title.2": "有迹可循。",
+    "hero.lead": "通过串口实时接收电脑鼠的位置、朝向与传感器数据，把 8×8 迷宫中的每一次探索，变成清晰可见的轨迹与墙体。",
+    "hero.download": "下载 Windows 安装包",
+    "hero.see": "了解功能",
+    "hero.total": "总下载次数",
+    "hero.maze": "8 × 8 迷宫",
+    "hero.serial": "实时串口",
+    "hero.views": "2D / 3D 视图",
+    "overview.heading.1": "把调试过程，",
+    "overview.heading.2": "变成可见的状态。",
+    "overview.p1": "MazeMouse 是苏州大学电子信息学院《电子系统设计》课程设计项目，服务于电脑鼠竞赛中最需要反馈的环节：连接、探索、回溯、优化，并在同一个界面里把数据与图形对应起来。",
+    "overview.p2": "原生桌面架构确保低延迟接收，轨迹优先的界面让每一次移动、每一面墙、每一个传感器状态都即时可见。",
+    "cap.serial": "串口通信",
+    "cap.trail": "实时轨迹",
+    "cap.walls": "墙体绘制",
+    "cap.sensors": "传感器监控",
+    "cap.replay": "路径回放",
+    "cap.path": "最短路径",
+    "cap.export": "数据导出",
+    "cap.views": "2D / 3D",
+    "features.sub": "四组能力，覆盖从连接到交付。",
+    "features.heading": "少一点切换，多一点看见。",
+    "feature1.title": "实时轨迹可视化",
+    "feature1.p": "2D / 3D 双模式显示，动态轨迹与渐隐效果，实时呈现电脑鼠的位置、朝向与角度。",
+    "feature2.title": "串口通信管理",
+    "feature2.p": "自动检测可用串口，支持波特率、数据位、停止位与校验位配置，并实时统计通信速率。",
+    "feature3.title": "传感器与墙体",
+    "feature3.p": "前后左右传感器状态实时显示，并根据电脑鼠朝向自动判断、更新迷宫墙体。",
+    "feature4.title": "回放与路径优化",
+    "feature4.p": "自动保存运行轨迹，支持多轨迹回放对比、快照导出，以及最短路径计算与下发。",
+    "protocol.heading.1": "一条数据帧，",
+    "protocol.heading.2": "还原整场探索。",
+    "protocol.p": "电脑鼠通过串口持续上报状态，上位机解析后同步更新轨迹、墙体与传感器面板。",
+    "protocol.link": "查看仓库文档",
+    "protocol.meta.xy": "X / Y — 迷宫坐标 0–7",
+    "protocol.meta.o": "O — 朝向 0–3",
+    "protocol.meta.sensors": "Front / Left / Right — 传感器",
+    "gallery.sub": "主操作、日志、设置与轨迹记录。",
+    "gallery.heading": "界面，服务于调试。",
+    "shot.main": "主操作页 · 串口、传感器与迷宫轨迹",
+    "shot.log": "实时日志 · 数据收发与过滤",
+    "shot.settings": "设置页 · 主题、串口与启动项",
+    "shot.replay": "轨迹记录 · 回放、对比与导出",
+    "carousel.prev": "上一张",
+    "carousel.next": "下一张",
+    "releases.sub": "自动同步 GitHub Releases。",
+    "releases.heading": "选择适合你的版本。",
+    "releases.total": "总下载次数",
+    "release.expand": "展开全部版本",
+    "release.collapse": "收起版本",
+    "closing.heading.1": "连接你的电脑鼠，",
+    "closing.heading.2": "让迷宫开口说话。",
+    "closing.download": "下载 Windows 安装包",
+    "footer.copyright": "© 2025 石殷睿 · 苏州大学电子信息学院",
+    "loader.loading": "正在加载小车模型…",
+    "release.latest": "Latest",
+    "release.prerelease": "预发布",
+    "release.windows": "Windows 安装包",
+    "release.view": "查看 Release",
+    "release.file": "文件",
+    "release.empty": "版本信息暂时无法加载，",
+    "release.link": "前往 GitHub Releases ↗"
+  },
+  en: {
+    "nav.features": "Features",
+    "nav.interface": "Interface",
+    "nav.protocol": "Protocol",
+    "nav.downloads": "Downloads",
+    "hero.eyebrow": "Soochow University · EIE Course Project",
+    "hero.title.1": "Make every maze",
+    "hero.title.2": "traceable.",
+    "hero.lead": "Receive the micromouse's position, heading and sensor data over serial, and turn every run in the 8×8 maze into visible paths and walls.",
+    "hero.download": "Download Windows installer",
+    "hero.see": "See features",
+    "hero.total": "Total downloads",
+    "hero.maze": "8 × 8 maze",
+    "hero.serial": "Live serial",
+    "hero.views": "2D / 3D views",
+    "overview.heading.1": "Make debugging",
+    "overview.heading.2": "visible state.",
+    "overview.p1": "MazeMouse is a course project from the School of Electronic Information Engineering at Soochow University. It focuses on the most feedback-heavy parts of a micromouse run: connect, explore, backtrack, optimize — and maps data to graphics in one workspace.",
+    "overview.p2": "A native desktop architecture keeps latency low, while a preview-first interface makes every move, wall and sensor state instantly visible.",
+    "cap.serial": "Serial",
+    "cap.trail": "Live trail",
+    "cap.walls": "Wall drawing",
+    "cap.sensors": "Sensors",
+    "cap.replay": "Replay",
+    "cap.path": "Shortest path",
+    "cap.export": "Export",
+    "cap.views": "2D / 3D",
+    "features.sub": "Four capabilities, from connection to delivery.",
+    "features.heading": "Less switching, more seeing.",
+    "feature1.title": "Live path visualization",
+    "feature1.p": "2D / 3D modes, dynamic fading trails, and real-time position, heading and angle.",
+    "feature2.title": "Serial management",
+    "feature2.p": "Auto-detect ports, configure baud, data, stop and parity bits, and track throughput in real time.",
+    "feature3.title": "Sensors and walls",
+    "feature3.p": "Show front, left and right sensor states, and update maze walls based on the mouse heading.",
+    "feature4.title": "Replay and optimization",
+    "feature4.p": "Auto-save runs, compare replays, export snapshots, and compute or send the shortest path.",
+    "protocol.heading.1": "One frame,",
+    "protocol.heading.2": "the whole run.",
+    "protocol.p": "The micromouse reports its state over serial; the host parses it and updates the trail, walls and sensor panel together.",
+    "protocol.link": "View repository docs",
+    "protocol.meta.xy": "X / Y — maze coordinates 0–7",
+    "protocol.meta.o": "O — heading 0–3",
+    "protocol.meta.sensors": "Front / Left / Right — sensors",
+    "gallery.sub": "Main, log, settings and replay.",
+    "gallery.heading": "An interface built for debugging.",
+    "shot.main": "Main page · serial, sensors and maze trail",
+    "shot.log": "Live log · data traffic and filtering",
+    "shot.settings": "Settings · theme, serial and startup",
+    "shot.replay": "Replay · compare and export paths",
+    "carousel.prev": "Previous",
+    "carousel.next": "Next",
+    "releases.sub": "Synced with GitHub Releases.",
+    "releases.heading": "Choose your version.",
+    "releases.total": "Total downloads",
+    "release.expand": "Show all versions",
+    "release.collapse": "Collapse versions",
+    "closing.heading.1": "Connect your mouse,",
+    "closing.heading.2": "and let the maze speak.",
+    "closing.download": "Download Windows installer",
+    "footer.copyright": "© 2025 Shi Yinrui · School of Electronic Information Engineering, Soochow University",
+    "loader.loading": "Loading vehicle model…",
+    "release.latest": "Latest",
+    "release.prerelease": "Pre-release",
+    "release.windows": "Windows installer",
+    "release.view": "View release",
+    "release.file": "File",
+    "release.empty": "Version info is unavailable. ",
+    "release.link": "View GitHub Releases ↗"
+  }
+};
+
+let currentLang = "zh";
+
+function translate(key) {
+  return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key;
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLang === "zh" ? "zh-CN" : "en";
+  document.title = currentLang === "zh"
+    ? "MazeMouse · 电脑鼠迷宫上位机"
+    : "MazeMouse · Micromouse Maze Host";
+  const description = document.querySelector('meta[name="description"]');
+  if (description) {
+    description.content = currentLang === "zh"
+      ? "面向 Micromouse 电脑鼠竞赛的迷宫可视化与控制系统，支持串口通信、实时轨迹、墙体绘制、传感器监控与路径回放。"
+      : "A maze visualization and control host for Micromouse competitions, with serial communication, live trails, wall drawing, sensor monitoring and path replay.";
+  }
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = translate(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+    element.setAttribute("aria-label", translate(element.dataset.i18nAria));
+  });
+
+  const toggle = document.querySelector("#lang-toggle");
+  if (toggle) toggle.textContent = currentLang === "zh" ? "EN" : "中文";
+
+  const releaseToggle = document.querySelector("#release-toggle");
+  if (releaseToggle) {
+    releaseToggle.textContent = translate(releaseToggle.dataset.expanded === "true" ? "release.collapse" : "release.expand");
+  }
+
+  setupHeroType();
+}
+
+function setupLanguage() {
+  const saved = localStorage.getItem("maze-language");
+  currentLang = saved === "en" || saved === "zh" ? saved : "zh";
+  applyLanguage();
+  document.querySelector("#lang-toggle")?.addEventListener("click", () => {
+    currentLang = currentLang === "zh" ? "en" : "zh";
+    localStorage.setItem("maze-language", currentLang);
+    applyLanguage();
+  });
+}
+
 async function loadReleases() {
   const repository = "Quartzsyr/MazeMouse";
   const countNodes = document.querySelectorAll("[data-download-count]");
@@ -138,8 +328,8 @@ async function loadReleases() {
       const asset = (release.assets || [])[0];
       const downloadUrl = asset ? asset.browser_download_url : release.html_url;
       const assetName = asset
-        ? (asset.name.toLowerCase().endsWith(".exe") ? "Windows 安装包" : asset.name)
-        : "查看 Release";
+        ? (asset.name.toLowerCase().endsWith(".exe") ? translate("release.windows") : asset.name)
+        : translate("release.view");
 
       const item = document.createElement("article");
       item.className = "release-item";
@@ -162,14 +352,14 @@ async function loadReleases() {
       if (release.prerelease) {
         const badge = document.createElement("span");
         badge.className = "badge";
-        badge.textContent = "预发布";
+        badge.textContent = translate("release.prerelease");
         titleRow.appendChild(badge);
       }
 
       if (release === installerRelease) {
         const latest = document.createElement("span");
         latest.className = "badge latest";
-        latest.textContent = "Latest";
+        latest.textContent = translate("release.latest");
         titleRow.appendChild(latest);
       }
 
@@ -178,7 +368,7 @@ async function loadReleases() {
       const dateSpan = document.createElement("span");
       dateSpan.textContent = date;
       const sizeSpan = document.createElement("span");
-      sizeSpan.textContent = asset && asset.size ? `${(asset.size / 1048576).toFixed(1)} MB` : "文件";
+      sizeSpan.textContent = asset && asset.size ? `${(asset.size / 1048576).toFixed(1)} MB` : translate("release.file");
       meta.append(dateSpan, sizeSpan);
 
       main.append(titleRow, meta);
@@ -206,7 +396,8 @@ async function loadReleases() {
         items.forEach((item, index) => {
           if (index >= visibleCount) item.classList.toggle("is-hidden", !expanded);
         });
-        toggle.textContent = expanded ? "收起版本" : "展开全部版本";
+        toggle.dataset.expanded = expanded ? "true" : "false";
+        toggle.textContent = translate(expanded ? "release.collapse" : "release.expand");
       });
     } else {
       toggle.hidden = true;
@@ -214,7 +405,7 @@ async function loadReleases() {
   } catch (error) {
     setCount("—");
     if (list) {
-      list.innerHTML = '<p class="release-empty">版本信息暂时无法加载，<a href="https://github.com/Quartzsyr/MazeMouse/releases" target="_blank" rel="noreferrer">前往 GitHub Releases ↗</a></p>';
+      list.innerHTML = `<p class="release-empty">${translate("release.empty")}<a href="https://github.com/Quartzsyr/MazeMouse/releases" target="_blank" rel="noreferrer">${translate("release.link")}</a></p>`;
     }
     if (toggle) toggle.hidden = true;
   }
@@ -312,6 +503,38 @@ function setupCarousel() {
   }
 
   update();
+}
+
+function setupTilt() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const items = document.querySelectorAll("[data-tilt]");
+  items.forEach((item) => {
+    item.addEventListener("pointermove", (event) => {
+      const rect = item.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      item.style.transform = `perspective(900px) rotateX(${(-y * 6).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg) translateY(-4px)`;
+    });
+    item.addEventListener("pointerleave", () => {
+      item.style.transform = "";
+    });
+  });
+}
+
+function setupHeroType() {
+  const title = document.querySelector("#hero-title");
+  if (!title) return;
+  title.querySelectorAll(".title-line").forEach((line) => {
+    const text = line.textContent;
+    line.textContent = "";
+    [...text].forEach((character, index) => {
+      const span = document.createElement("span");
+      span.className = "char";
+      span.style.setProperty("--i", index);
+      span.textContent = character === " " ? "\u00A0" : character;
+      line.appendChild(span);
+    });
+  });
 }
 
 async function setupMaze() {
@@ -426,7 +649,7 @@ async function setupMaze() {
   const loaderBar = loaderElement?.querySelector(".loader-bar i");
   const updateLoadProgress = (fraction) => {
     const percent = Math.round(fraction * 100);
-    if (loaderText) loaderText.textContent = `正在加载小车模型… ${percent}%`;
+    if (loaderText) loaderText.textContent = `${translate("loader.loading")} ${percent}%`;
     if (loaderBar) loaderBar.style.width = `${percent}%`;
   };
   const gltf = await loadModel("./assets/model.glb", GLTFLoader, updateLoadProgress);
@@ -625,6 +848,8 @@ async function setupMaze() {
 setupReveals();
 setupParallax();
 setupCarousel();
+setupLanguage();
+setupTilt();
 setupMaze().catch(() => {
   document.querySelector(".maze-stage")?.classList.add("three-unavailable");
   document.querySelector("#scene-loader")?.classList.add("is-hidden");
