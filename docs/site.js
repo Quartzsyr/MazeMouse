@@ -79,6 +79,16 @@ async function loadReleases() {
     ), 0);
     setCount(formatNumber(totalDownloads));
 
+    const installerRelease = releases.find((release) => (release.assets || []).some(
+      (asset) => asset.name.toLowerCase().endsWith(".exe")
+    ));
+    if (installerRelease) {
+      const installer = installerRelease.assets.find((asset) => asset.name.toLowerCase().endsWith(".exe"));
+      document.querySelectorAll("[data-download-link]").forEach((link) => {
+        link.href = installer.browser_download_url;
+      });
+    }
+
     const visibleCount = 3;
     const fragment = document.createDocumentFragment();
 
