@@ -309,7 +309,7 @@ function setupSound() {
   if (!button) return;
 
   const updateIcon = () => {
-    button.textContent = soundEnabled ? "🔊" : "🔇";
+    button.classList.toggle("is-muted", !soundEnabled);
     button.setAttribute("aria-pressed", String(soundEnabled));
     button.setAttribute("aria-label", soundEnabled ? "关闭电机音效" : "开启电机音效");
   };
