@@ -257,8 +257,6 @@ function applyLanguage() {
   if (releaseToggle) {
     releaseToggle.textContent = translate(releaseToggle.dataset.expanded === "true" ? "release.collapse" : "release.expand");
   }
-
-  setupHeroType();
 }
 
 function setupLanguage() {
@@ -517,22 +515,6 @@ function setupTilt() {
     });
     item.addEventListener("pointerleave", () => {
       item.style.transform = "";
-    });
-  });
-}
-
-function setupHeroType() {
-  const title = document.querySelector("#hero-title");
-  if (!title) return;
-  title.querySelectorAll(".title-line").forEach((line) => {
-    const text = line.textContent;
-    line.textContent = "";
-    [...text].forEach((character, index) => {
-      const span = document.createElement("span");
-      span.className = "char";
-      span.style.setProperty("--i", index);
-      span.textContent = character === " " ? "\u00A0" : character;
-      line.appendChild(span);
     });
   });
 }
