@@ -38,6 +38,120 @@ function mix(start, end, progress) {
   return start + (end - start) * progress;
 }
 
+function formatNumber(value) {
+  return new Intl.NumberFormat("zh-CN").format(value);
+}
+
+async function loadReleases() {
+  const repository = "Quartzsyr/MazeMouse";
+  const countNodes = document.querySelectorAll("[data-download-count]");
+  const list = document.querySelector("#release-list");
+  const toggle = document.querySelector("#release-toggle");
+
+  const setCount = (value) => {
+    countNodes.forEach((node) => { node.textContent = value; });
+  };
+
+  try {
+    const response = await fetch(`https://api.github.com/repos/${repository}/releases?per_page=100`, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!response.ok) throw new Error(`GitHub API responded with ${response.status}`);
+    const releases = await response.json();
+
+    releases.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+
+    const totalDownloads = releases.reduce((total, release) => total + (release.assets || []).reduce(
+      (assetTotal, asset) => assetTotal + (asset.download_count || 0), 0
+    ), 0);
+    setCount(formatNumber(totalDownloads));
+
+    const visibleCount = 3;
+    const fragment = document.createDocumentFragment();
+
+    releases.forEach((release, index) => {
+      const title = release.name || release.tag_name || "Release";
+      const date = new Date(release.published_at).toLocaleDateString("zh-CN", {
+        year: "numeric", month: "short", day: "numeric"
+      });
+      const asset = (release.assets || [])[0];
+      const downloadUrl = asset ? asset.browser_download_url : release.html_url;
+      const assetName = asset
+        ? (asset.name.toLowerCase().endsWith(".exe") ? "Windows 安装包" : asset.name)
+        : "查看 Release";
+
+      const item = document.createElement("article");
+      item.className = "release-item";
+      if (index >= visibleCount) item.classList.add("is-hidden");
+
+      const main = document.createElement("div");
+      main.className = "release-main";
+
+      const titleRow = document.createElement("div");
+      titleRow.className = "release-title";
+      const strong = document.createElement("strong");
+      strong.textContent = title;
+      titleRow.appendChild(strong);
+
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = release.tag_name;
+      titleRow.appendChild(tag);
+
+      if (release.prerelease) {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = "预发布";
+        titleRow.appendChild(badge);
+      }
+
+      const meta = document.createElement("div");
+      meta.className = "release-meta";
+      const dateSpan = document.createElement("span");
+      dateSpan.textContent = date;
+      const sizeSpan = document.createElement("span");
+      sizeSpan.textContent = asset && asset.size ? `${(asset.size / 1048576).toFixed(1)} MB` : "文件";
+      meta.append(dateSpan, sizeSpan);
+
+      main.append(titleRow, meta);
+      item.appendChild(main);
+
+      const download = document.createElement("a");
+      download.className = "release-download";
+      download.href = downloadUrl;
+      download.setAttribute("target", "_blank");
+      download.setAttribute("rel", "noreferrer");
+      download.textContent = assetName;
+      item.appendChild(download);
+
+      fragment.appendChild(item);
+    });
+
+    list.replaceChildren(fragment);
+
+    if (releases.length > visibleCount) {
+      toggle.hidden = false;
+      let expanded = false;
+      toggle.addEventListener("click", () => {
+        expanded = !expanded;
+        const items = list.querySelectorAll(".release-item");
+        items.forEach((item, index) => {
+          if (index >= visibleCount) item.classList.toggle("is-hidden", !expanded);
+        });
+        toggle.textContent = expanded ? "收起版本" : "展开全部版本";
+      });
+    } else {
+      toggle.hidden = true;
+    }
+  } catch (error) {
+    setCount("—");
+    if (list) {
+      list.innerHTML = '<p class="release-empty">版本信息暂时无法加载，<a href="https://github.com/Quartzsyr/MazeMouse/releases" target="_blank" rel="noreferrer">前往 GitHub Releases ↗</a></p>';
+    }
+    if (toggle) toggle.hidden = true;
+  }
+}
+
 function setupReveals() {
   const elements = document.querySelectorAll(".reveal");
   const observer = new IntersectionObserver((entries) => {
@@ -278,3 +392,4 @@ setupReveals();
 setupMaze().catch(() => {
   document.querySelector(".maze-stage")?.classList.add("three-unavailable");
 });
+loadReleases();

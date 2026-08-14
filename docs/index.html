@@ -23,7 +23,9 @@
       </a>
       <nav class="site-nav" aria-label="主导航">
         <a href="#features">核心功能</a>
+        <a href="#gallery">界面</a>
         <a href="#protocol">通信协议</a>
+        <a href="#releases">下载</a>
       </nav>
       <a class="header-github" href="https://github.com/Quartzsyr/MazeMouse" target="_blank" rel="noreferrer">
         <span>GitHub</span><span aria-hidden="true">↗</span>
@@ -40,7 +42,7 @@
       <div class="hero-grid" aria-hidden="true"></div>
       <div class="container hero-inner">
         <div class="hero-copy">
-          <div class="eyebrow"><span></span>Micromouse · 上位机</div>
+          <div class="eyebrow"><span></span>苏州大学电子信息学院 · 电子系统课程设计</div>
           <h1 id="hero-title">让迷宫，<br><em>有迹可循。</em></h1>
           <p class="hero-lead">通过串口实时接收电脑鼠的位置、朝向与传感器数据，把 8×8 迷宫中的每一次探索，变成清晰可见的轨迹与墙体。</p>
           <div class="hero-actions">
@@ -50,6 +52,11 @@
             <a class="button button-ghost" href="#features">了解功能 <span aria-hidden="true">↓</span></a>
           </div>
           <div class="hero-proof" aria-label="项目特性">
+            <a class="download-stat" href="https://github.com/Quartzsyr/MazeMouse/releases" target="_blank" rel="noreferrer">
+              <span class="download-stat-value" data-download-count aria-live="polite">—</span>
+              <span class="download-stat-label">Total downloads</span>
+            </a>
+            <span class="proof-rule" aria-hidden="true"></span>
             <span class="proof-item">8 × 8 迷宫</span>
             <span class="proof-rule" aria-hidden="true"></span>
             <span class="proof-item">实时串口</span>
@@ -73,7 +80,7 @@
           <h2>把调试过程，<br>变成可见的状态。</h2>
         </div>
         <div class="overview-copy">
-          <p>MazeMouse 不是泛化的串口工具。它服务于电脑鼠竞赛中最需要反馈的环节：连接、探索、回溯、优化，并在同一个界面里把数据与图形对应起来。</p>
+          <p>MazeMouse 是苏州大学电子信息学院《电子系统设计》课程设计项目，服务于电脑鼠竞赛中最需要反馈的环节：连接、探索、回溯、优化，并在同一个界面里把数据与图形对应起来。</p>
           <p>原生桌面架构确保低延迟接收，轨迹优先的界面让每一次移动、每一面墙、每一个传感器状态都即时可见。</p>
           <div class="capability-list" aria-label="应用能力">
             <span>串口通信</span><span>实时轨迹</span><span>墙体绘制</span><span>传感器监控</span><span>路径回放</span><span>最短路径</span><span>数据导出</span><span>2D / 3D</span>
@@ -131,6 +138,50 @@
             <span>Front / Left / Right — 传感器</span>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="section gallery-section" id="gallery">
+      <div class="container">
+        <div class="section-heading reveal">
+          <div class="eyebrow"><span></span>Interface</div>
+          <p>主操作、日志、设置与轨迹记录。</p>
+          <h2>界面，服务于调试。</h2>
+        </div>
+        <div class="gallery-grid">
+          <figure class="shot reveal">
+            <img src="./assets/main.png" alt="MazeMouse 主操作页截图">
+            <figcaption>主操作页 · 串口、传感器与迷宫轨迹</figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="./assets/log.png" alt="MazeMouse 实时日志页截图">
+            <figcaption>实时日志 · 数据收发与过滤</figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="./assets/settings.png" alt="MazeMouse 设置页截图">
+            <figcaption>设置页 · 主题、串口与启动项</figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="./assets/replay.png" alt="MazeMouse 轨迹记录页截图">
+            <figcaption>轨迹记录 · 回放、对比与导出</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section releases-section" id="releases">
+      <div class="container">
+        <div class="section-heading reveal">
+          <div class="eyebrow"><span></span>Releases</div>
+          <p>自动同步 GitHub Releases。</p>
+          <h2>选择适合你的版本。</h2>
+        </div>
+        <div class="release-summary reveal">
+          <span>总下载次数</span>
+          <strong data-download-count aria-live="polite">—</strong>
+        </div>
+        <div class="release-list" id="release-list" aria-live="polite"></div>
+        <button class="release-toggle" id="release-toggle" type="button">展开全部版本</button>
       </div>
     </section>
 
