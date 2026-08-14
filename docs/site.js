@@ -292,10 +292,10 @@ function ensureAudio() {
     motorGain.gain.value = 0;
     const filter = audioContext.createBiquadFilter();
     filter.type = "lowpass";
-    filter.frequency.value = 260;
+    filter.frequency.value = 180;
     motorOscillator = audioContext.createOscillator();
-    motorOscillator.type = "sawtooth";
-    motorOscillator.frequency.value = 72;
+    motorOscillator.type = "triangle";
+    motorOscillator.frequency.value = 58;
     motorOscillator.connect(filter);
     filter.connect(motorGain);
     motorGain.connect(audioContext.destination);
@@ -331,9 +331,9 @@ function setupSound() {
     ensureAudio();
     const speed = Math.min(Math.abs(window.scrollY - lastScrollY), 90);
     lastScrollY = window.scrollY;
-    setMotorLevel(Math.min(0.5, 0.08 + speed * 0.02));
+    setMotorLevel(Math.min(0.16, 0.02 + speed * 0.004));
     if (motorOscillator && audioContext) {
-      motorOscillator.frequency.setTargetAtTime(72 + speed * 0.35, audioContext.currentTime, 0.08);
+      motorOscillator.frequency.setTargetAtTime(58 + speed * 0.18, audioContext.currentTime, 0.08);
     }
     clearTimeout(scrollTimer);
     scrollTimer = window.setTimeout(() => setMotorLevel(0), 120);
@@ -618,6 +618,10 @@ async function setupMaze() {
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.08;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
@@ -646,9 +650,10 @@ async function setupMaze() {
 
   const floor = new THREE.Mesh(
     new THREE.BoxGeometry(8, 0.08, 8),
-    new THREE.MeshStandardMaterial({ color: 0x0c1916, roughness: 0.82, metalness: 0.08 })
+    new THREE.MeshStandardMaterial({ color: 0x101f1a, roughness: 0.5, metalness: 0.18 })
   );
   floor.position.set(4, -0.05, 4);
+  floor.receiveShadow = true;
   maze.add(floor);
 
   const grid = new THREE.GridHelper(8, 8, 0x2c4a40, 0x15261f);
@@ -656,9 +661,11 @@ async function setupMaze() {
   maze.add(grid);
 
   const wallMaterial = new THREE.MeshStandardMaterial({
-    color: 0x17352c,
-    roughness: 0.62,
-    metalness: 0.16
+    color: 0x1b3a30,
+    roughness: 0.55,
+    metalness: 0.24,
+    emissive: 0x06110d,
+    emissiveIntensity: 0.25
   });
   const wallTopMaterial = new THREE.MeshStandardMaterial({
     color: 0x2f6a58,
@@ -675,12 +682,16 @@ async function setupMaze() {
     const depth = vertical ? length : 0.055;
     const wall = new THREE.Mesh(new THREE.BoxGeometry(width, 0.52, depth), wallMaterial);
     wall.position.set((x1 + x2) / 2, 0.26, (z1 + z2) / 2);
+    wall.castShadow = true;
+    wall.receiveShadow = true;
     maze.add(wall);
 
     const topWidth = vertical ? 0.075 : length;
     const topDepth = vertical ? length : 0.075;
     const topStrip = new THREE.Mesh(new THREE.BoxGeometry(topWidth, 0.015, topDepth), wallTopMaterial);
     topStrip.position.set((x1 + x2) / 2, 0.5275, (z1 + z2) / 2);
+    topStrip.castShadow = true;
+    topStrip.receiveShadow = true;
     maze.add(topStrip);
   });
 
@@ -753,6 +764,12 @@ async function setupMaze() {
     -center.z * scale
   );
   mouse.add(model);
+  model.traverse((node) => {
+    if (node.isMesh) {
+      node.castShadow = true;
+      node.receiveShadow = true;
+    }
+  });
 
   const carAccessories = new THREE.Group();
   const headlightMaterial = new THREE.MeshStandardMaterial({
@@ -814,10 +831,20 @@ async function setupMaze() {
 
   const hemisphere = new THREE.HemisphereLight(0xd8fff0, 0x04100c, 2.1);
   const key = new THREE.DirectionalLight(0xffffff, 2.8);
-  key.position.set(-3, 8, 7);
+  key.position.set(-4, 9, 7);
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.camera.near = 0.5;
+  key.shadow.camera.far = 30;
+  key.shadow.camera.left = -12;
+  key.shadow.camera.right = 12;
+  key.shadow.camera.top = 12;
+  key.shadow.camera.bottom = -12;
+  key.shadow.bias = -0.0002;
   const rim = new THREE.PointLight(0x34d399, 18, 18);
   rim.position.set(5, 2.5, 6);
-  scene.add(hemisphere, key, rim);
+  const fill = new THREE.AmbientLight(0x2c4139, 0.8);
+  scene.add(hemisphere, key, rim, fill);
 
   const pointer = new THREE.Vector2();
   let scrollProgress = 0;
