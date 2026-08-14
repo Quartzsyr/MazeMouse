@@ -1,8 +1,7 @@
 const PATH = [
   [0, 0], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [0, 4], [0, 5], [1, 5],
   [2, 5], [2, 6], [1, 6], [0, 6], [0, 7], [1, 7], [2, 7], [3, 7], [3, 6],
-  [3, 5], [4, 5], [4, 4], [5, 4], [5, 3], [6, 3], [6, 2], [6, 1], [6, 0],
-  [7, 0], [7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6], [7, 7]
+  [3, 5], [4, 5], [4, 4]
 ];
 
 const SEGMENTS = [
@@ -224,10 +223,10 @@ async function setupMaze() {
   maze.add(startPad);
 
   const goalPad = new THREE.Mesh(
-    padGeometry,
+    new THREE.CylinderGeometry(0.3, 0.3, 0.035, 28),
     new THREE.MeshStandardMaterial({ color: 0xf0b35a, roughness: 0.35, emissive: 0x59351a, emissiveIntensity: 0.65 })
   );
-  goalPad.position.set(7.5, 0.018, 7.5);
+  goalPad.position.set(4.5, 0.018, 4.5);
   maze.add(goalPad);
 
   const trailGeometry = new THREE.BufferGeometry();
