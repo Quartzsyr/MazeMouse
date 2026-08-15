@@ -938,13 +938,15 @@ async function setupMaze() {
   taillightSphere(-0.13, -0.38);
   taillightSphere(0.13, -0.38);
 
-  const frontLight = new THREE.PointLight(0xff3b3b, 0.8, 1.4, 2);
-  frontLight.position.set(0, 0.03, 0);
-  carAccessories.add(frontLight);
-
-  const rearLight = new THREE.PointLight(0xff3030, 1.0, 1.0, 2);
-  rearLight.position.set(0, 0.12, -0.58);
-  carAccessories.add(rearLight);
+  const sensorLights = {
+    front: new THREE.PointLight(0xff3b3b, 0, 1.2, 2),
+    left: new THREE.PointLight(0xff3b3b, 0, 1.2, 2),
+    right: new THREE.PointLight(0xff3b3b, 0, 1.2, 2)
+  };
+  sensorLights.front.position.set(0, 0.03, 0.12);
+  sensorLights.left.position.set(-0.12, 0.03, 0);
+  sensorLights.right.position.set(0.12, 0.03, 0);
+  carAccessories.add(sensorLights.front, sensorLights.left, sensorLights.right);
 
   const sensorMaterials = {
     front: new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.7 }),
@@ -1082,6 +1084,9 @@ async function setupMaze() {
     sensorMaterials.front.opacity = frontBlocked ? 0.95 : 0.3;
     sensorMaterials.left.opacity = leftBlocked ? 0.95 : 0.3;
     sensorMaterials.right.opacity = rightBlocked ? 0.95 : 0.3;
+    sensorLights.front.intensity = frontBlocked ? 1.2 : 0;
+    sensorLights.left.intensity = leftBlocked ? 1.2 : 0;
+    sensorLights.right.intensity = rightBlocked ? 1.2 : 0;
 
     wallMeshes.forEach((wall) => {
       const rise = smoothstep((scrollProgress - 0.02 - wall.userData.dist * 0.035) / 0.16);
@@ -1156,6 +1161,9 @@ async function setupMaze() {
     sensorMaterials.front.opacity = hasWall(state.row, state.col, state.cardinal) ? 0.95 : 0.3;
     sensorMaterials.left.opacity = hasWall(state.row, state.col, leftDirection) ? 0.95 : 0.3;
     sensorMaterials.right.opacity = hasWall(state.row, state.col, rightDirection) ? 0.95 : 0.3;
+    sensorLights.front.intensity = hasWall(state.row, state.col, state.cardinal) ? 1.2 : 0;
+    sensorLights.left.intensity = hasWall(state.row, state.col, leftDirection) ? 1.2 : 0;
+    sensorLights.right.intensity = hasWall(state.row, state.col, rightDirection) ? 1.2 : 0;
     trail.geometry.setDrawRange(0, Math.floor(pathPoints.length * 0.58));
     wallMeshes.forEach((wall) => {
       wall.scale.y = 1;
