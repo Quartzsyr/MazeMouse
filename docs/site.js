@@ -843,7 +843,6 @@ async function setupMaze() {
     return rings;
   };
 
-  const startRipples = createRipple(0x34d399, 0.5, 0.5);
   const goalRipples = createRipple(0xf0b35a, 4.5, 4.5);
 
   const trailGeometry = new THREE.BufferGeometry();
@@ -939,7 +938,7 @@ async function setupMaze() {
   taillightSphere(-0.13, -0.38);
   taillightSphere(0.13, -0.38);
 
-  const frontLight = new THREE.PointLight(0xffe9b8, 2.4, 1.8, 2);
+  const frontLight = new THREE.PointLight(0xff3b3b, 0.8, 1.4, 2);
   frontLight.position.set(0, 0.16, 0.75);
   carAccessories.add(frontLight);
 
@@ -1080,6 +1079,9 @@ async function setupMaze() {
     sensorMaterials.front.color.set(frontBlocked ? 0xff4d4d : 0x34d399);
     sensorMaterials.left.color.set(leftBlocked ? 0xff4d4d : 0x34d399);
     sensorMaterials.right.color.set(rightBlocked ? 0xff4d4d : 0x34d399);
+    sensorMaterials.front.opacity = frontBlocked ? 0.95 : 0.3;
+    sensorMaterials.left.opacity = leftBlocked ? 0.95 : 0.3;
+    sensorMaterials.right.opacity = rightBlocked ? 0.95 : 0.3;
 
     wallMeshes.forEach((wall) => {
       const rise = smoothstep((scrollProgress - 0.02 - wall.userData.dist * 0.035) / 0.16);
@@ -1096,14 +1098,25 @@ async function setupMaze() {
     trail.material.opacity = mix(0.55, 0.92, mouseProgress);
 
     const rippleTime = time * 0.001;
-    [startRipples, goalRipples].forEach((ripples) => {
-      ripples.forEach((ring) => {
-        const duration = 3.6;
-        const progress = ((rippleTime / duration) + ring.userData.offset) % 1;
-        ring.scale.setScalar(0.16 + progress * 0.72);
-        ring.material.uniforms.uOpacity.value = (1 - progress) * 0.26;
-        ring.material.uniforms.uTime.value = rippleTime;
-      });
+    let audioData = null;
+    if (soundEnabled && audioAnalyser && frequencyData) {
+      audioAnalyser.getByteFrequencyData(frequencyData);
+      audioData = frequencyData;
+    }
+    goalRipples.forEach((ring, index) => {
+      const duration = 3.6;
+      const progress = ((rippleTime / duration) + ring.userData.offset) % 1;
+      let audioEnergy = 0;
+      if (audioData) {
+        const start = Math.floor(index * (audioData.length / goalRipples.length));
+        const end = Math.floor((index + 1) * (audioData.length / goalRipples.length));
+        let sum = 0;
+        for (let bin = start; bin < end; bin += 1) sum += audioData[bin];
+        audioEnergy = sum / Math.max(1, end - start) / 255;
+      }
+      ring.scale.setScalar(0.16 + progress * 0.72 + audioEnergy * 0.18);
+      ring.material.uniforms.uOpacity.value = (0.18 + audioEnergy * 0.7) * (1 - progress);
+      ring.material.uniforms.uTime.value = rippleTime + audioEnergy * 2.0;
     });
 
     composer.render();
@@ -1140,6 +1153,9 @@ async function setupMaze() {
     sensorMaterials.front.color.set(hasWall(state.row, state.col, state.cardinal) ? 0xff4d4d : 0x34d399);
     sensorMaterials.left.color.set(hasWall(state.row, state.col, leftDirection) ? 0xff4d4d : 0x34d399);
     sensorMaterials.right.color.set(hasWall(state.row, state.col, rightDirection) ? 0xff4d4d : 0x34d399);
+    sensorMaterials.front.opacity = hasWall(state.row, state.col, state.cardinal) ? 0.95 : 0.3;
+    sensorMaterials.left.opacity = hasWall(state.row, state.col, leftDirection) ? 0.95 : 0.3;
+    sensorMaterials.right.opacity = hasWall(state.row, state.col, rightDirection) ? 0.95 : 0.3;
     trail.geometry.setDrawRange(0, Math.floor(pathPoints.length * 0.58));
     wallMeshes.forEach((wall) => {
       wall.scale.y = 1;
@@ -1149,12 +1165,10 @@ async function setupMaze() {
       strip.scale.y = 1;
       strip.position.y = 0.5275;
     });
-    [startRipples, goalRipples].forEach((ripples) => {
-      ripples.forEach((ring, index) => {
-        ring.scale.setScalar(0.16 + (index / 2) * 0.72);
-        ring.material.uniforms.uOpacity.value = (1 - index / 2) * 0.26;
-        ring.material.uniforms.uTime.value = 0;
-      });
+    goalRipples.forEach((ring, index) => {
+      ring.scale.setScalar(0.16 + (index / 2) * 0.72);
+      ring.material.uniforms.uOpacity.value = (1 - index / 2) * 0.26;
+      ring.material.uniforms.uTime.value = 0;
     });
     composer.render();
   } else {
