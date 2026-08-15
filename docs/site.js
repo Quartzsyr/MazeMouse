@@ -939,7 +939,7 @@ async function setupMaze() {
   taillightSphere(0.13, -0.38);
 
   const frontLight = new THREE.PointLight(0xff3b3b, 0.8, 1.4, 2);
-  frontLight.position.set(0, 0.16, 0.75);
+  frontLight.position.set(0, 0.03, 0);
   carAccessories.add(frontLight);
 
   const rearLight = new THREE.PointLight(0xff3030, 1.0, 1.0, 2);
