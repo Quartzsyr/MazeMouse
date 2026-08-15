@@ -699,6 +699,10 @@ async function setupMaze() {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const THREE = await import("three");
   const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+  const { EffectComposer } = await import("three/addons/postprocessing/EffectComposer.js");
+  const { RenderPass } = await import("three/addons/postprocessing/RenderPass.js");
+  const { UnrealBloomPass } = await import("three/addons/postprocessing/UnrealBloomPass.js");
+  const { OutputPass } = await import("three/addons/postprocessing/OutputPass.js");
 
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -710,6 +714,12 @@ async function setupMaze() {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.34, 0.65, 0.5);
+  composer.addPass(bloomPass);
+  composer.addPass(new OutputPass());
 
   const maze = new THREE.Group();
   scene.add(maze);
@@ -760,6 +770,9 @@ async function setupMaze() {
     emissiveIntensity: 0.7
   });
 
+  const wallMeshes = [];
+  const wallTopMeshes = [];
+
   SEGMENTS.forEach(([x1, z1, x2, z2]) => {
     const vertical = x1 === x2;
     const length = vertical ? Math.abs(z2 - z1) : Math.abs(x2 - x1);
@@ -767,17 +780,50 @@ async function setupMaze() {
     const depth = vertical ? length : 0.055;
     const wall = new THREE.Mesh(new THREE.BoxGeometry(width, 0.52, depth), wallMaterial);
     wall.position.set((x1 + x2) / 2, 0.26, (z1 + z2) / 2);
+    wall.userData.dist = Math.hypot((x1 + x2) / 2 - 0.5, (z1 + z2) / 2 - 0.5);
     wall.castShadow = true;
     wall.receiveShadow = true;
     maze.add(wall);
+    wallMeshes.push(wall);
 
     const topWidth = vertical ? 0.075 : length;
     const topDepth = vertical ? length : 0.075;
     const topStrip = new THREE.Mesh(new THREE.BoxGeometry(topWidth, 0.015, topDepth), wallTopMaterial);
     topStrip.position.set((x1 + x2) / 2, 0.5275, (z1 + z2) / 2);
+    topStrip.userData.dist = wall.userData.dist;
     topStrip.castShadow = true;
     topStrip.receiveShadow = true;
     maze.add(topStrip);
+    wallTopMeshes.push(topStrip);
+  });
+
+  const rippleMaterialFactory = (color) => new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      uColor: { value: new THREE.Color(color) },
+      uOpacity: { value: 0 },
+      uTime: { value: 0 }
+    },
+    vertexShader: `
+      uniform float uTime;
+      void main() {
+        vec3 pos = position;
+        float angle = atan(pos.y, pos.x);
+        float radius = length(pos.xy);
+        float wobble = sin(angle * 8.0 + uTime * 3.0) * 0.012;
+        pos.xy *= 1.0 + wobble / max(radius, 0.0001);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor;
+      uniform float uOpacity;
+      void main() {
+        gl_FragColor = vec4(uColor, uOpacity);
+      }
+    `
   });
 
   const createRipple = (color, x, z) => {
@@ -785,14 +831,8 @@ async function setupMaze() {
     group.position.set(x, 0.032, z);
     const rings = [0, 1].map((index) => {
       const ring = new THREE.Mesh(
-        new THREE.RingGeometry(0.82, 1.0, 40),
-        new THREE.MeshBasicMaterial({
-          color,
-          transparent: true,
-          opacity: 0,
-          side: THREE.DoubleSide,
-          depthWrite: false
-        })
+        new THREE.RingGeometry(0.88, 1.0, 64),
+        rippleMaterialFactory(color)
       );
       ring.rotation.x = -Math.PI / 2;
       ring.userData.offset = index / 2;
@@ -837,6 +877,8 @@ async function setupMaze() {
   maze.add(trailLine);
 
   const mouse = new THREE.Group();
+  const carRig = new THREE.Group();
+  mouse.add(carRig);
   const loaderElement = document.querySelector("#scene-loader");
   const loaderText = loaderElement?.querySelector(".loader-text");
   const loaderBar = loaderElement?.querySelector(".loader-bar i");
@@ -859,7 +901,7 @@ async function setupMaze() {
     -center.y * scale + size.y * scale / 2,
     -center.z * scale
   );
-  mouse.add(model);
+  carRig.add(model);
   model.traverse((node) => {
     if (node.isMesh) {
       node.castShadow = true;
@@ -921,7 +963,7 @@ async function setupMaze() {
   ]), sensorMaterials.right);
   carAccessories.add(frontLine, leftLine, rightLine);
 
-  mouse.add(carAccessories);
+  carRig.add(carAccessories);
   maze.add(mouse);
   document.querySelector("#scene-loader")?.classList.add("is-hidden");
 
@@ -950,6 +992,8 @@ async function setupMaze() {
     const { width, height } = canvas.getBoundingClientRect();
     if (!width || !height) return;
     renderer.setSize(width, height, false);
+    composer.setSize(width, height);
+    bloomPass.resolution.set(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
   }
@@ -1023,7 +1067,10 @@ async function setupMaze() {
     mouse.position.x += (state.point.x - mouse.position.x) * 0.14;
     mouse.position.y = 0.02 + Math.sin(idle * 2.2) * 0.012;
     mouse.position.z += (state.point.z - mouse.position.z) * 0.14;
+    const angleDiff = Math.atan2(Math.sin(state.heading - mouse.rotation.y), Math.cos(state.heading - mouse.rotation.y));
     mouse.rotation.y += (state.heading - mouse.rotation.y) * 0.16;
+    const targetRoll = Math.max(-0.12, Math.min(0.12, -angleDiff * 0.35));
+    carRig.rotation.z += (targetRoll - carRig.rotation.z) * 0.08;
 
     const leftDirection = (state.cardinal + 3) % 4;
     const rightDirection = (state.cardinal + 1) % 4;
@@ -1034,6 +1081,17 @@ async function setupMaze() {
     sensorMaterials.left.color.set(leftBlocked ? 0xff4d4d : 0x34d399);
     sensorMaterials.right.color.set(rightBlocked ? 0xff4d4d : 0x34d399);
 
+    wallMeshes.forEach((wall) => {
+      const rise = smoothstep((scrollProgress - 0.02 - wall.userData.dist * 0.035) / 0.16);
+      wall.scale.y = Math.max(0.001, rise);
+      wall.position.y = 0.26 * rise;
+    });
+    wallTopMeshes.forEach((strip) => {
+      const rise = smoothstep((scrollProgress - 0.02 - strip.userData.dist * 0.035) / 0.16);
+      strip.scale.y = Math.max(0.001, rise);
+      strip.position.y = 0.5275 * rise;
+    });
+
     trail.geometry.setDrawRange(0, Math.max(2, Math.floor(mouseProgress * pathPoints.length + 1)));
     trail.material.opacity = mix(0.55, 0.92, mouseProgress);
 
@@ -1043,11 +1101,12 @@ async function setupMaze() {
         const duration = 3.6;
         const progress = ((rippleTime / duration) + ring.userData.offset) % 1;
         ring.scale.setScalar(0.16 + progress * 0.72);
-        ring.material.opacity = (1 - progress) * 0.26;
+        ring.material.uniforms.uOpacity.value = (1 - progress) * 0.26;
+        ring.material.uniforms.uTime.value = rippleTime;
       });
     });
 
-    renderer.render(scene, camera);
+    composer.render();
     frameId = requestAnimationFrame(render);
   }
 
@@ -1075,19 +1134,29 @@ async function setupMaze() {
     const state = mouseState(0.58);
     mouse.position.set(state.point.x, 0.02, state.point.z);
     mouse.rotation.y = state.heading;
+    carRig.rotation.z = 0;
     const leftDirection = (state.cardinal + 3) % 4;
     const rightDirection = (state.cardinal + 1) % 4;
     sensorMaterials.front.color.set(hasWall(state.row, state.col, state.cardinal) ? 0xff4d4d : 0x34d399);
     sensorMaterials.left.color.set(hasWall(state.row, state.col, leftDirection) ? 0xff4d4d : 0x34d399);
     sensorMaterials.right.color.set(hasWall(state.row, state.col, rightDirection) ? 0xff4d4d : 0x34d399);
     trail.geometry.setDrawRange(0, Math.floor(pathPoints.length * 0.58));
+    wallMeshes.forEach((wall) => {
+      wall.scale.y = 1;
+      wall.position.y = 0.26;
+    });
+    wallTopMeshes.forEach((strip) => {
+      strip.scale.y = 1;
+      strip.position.y = 0.5275;
+    });
     [startRipples, goalRipples].forEach((ripples) => {
       ripples.forEach((ring, index) => {
         ring.scale.setScalar(0.16 + (index / 2) * 0.72);
-        ring.material.opacity = (1 - index / 2) * 0.26;
+        ring.material.uniforms.uOpacity.value = (1 - index / 2) * 0.26;
+        ring.material.uniforms.uTime.value = 0;
       });
     });
-    renderer.render(scene, camera);
+    composer.render();
   } else {
     frameId = requestAnimationFrame(render);
   }
