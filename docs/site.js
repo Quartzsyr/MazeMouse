@@ -150,6 +150,11 @@ const translations = {
     "release.windows": "Windows 安装包",
     "release.view": "查看 Release",
     "release.file": "文件",
+    "release.downloads": "次下载",
+    "release.copy": "复制链接",
+    "release.copied": "已复制",
+    "release.notes": "查看更新说明",
+    "release.notes.close": "收起更新说明",
     "release.empty": "版本信息暂时无法加载，",
     "release.link": "前往 GitHub Releases ↗"
   },
@@ -220,6 +225,11 @@ const translations = {
     "release.windows": "Windows installer",
     "release.view": "View release",
     "release.file": "File",
+    "release.downloads": "downloads",
+    "release.copy": "Copy link",
+    "release.copied": "Copied",
+    "release.notes": "View release notes",
+    "release.notes.close": "Hide release notes",
     "release.empty": "Version info is unavailable. ",
     "release.link": "View GitHub Releases ↗"
   }
@@ -229,6 +239,21 @@ let currentLang = "zh";
 
 function translate(key) {
   return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key;
+}
+
+function releaseNotesText(markdown) {
+  return String(markdown || "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "• ")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/\r/g, "")
+    .trim();
 }
 
 function applyLanguage() {
@@ -460,10 +485,15 @@ async function loadReleases() {
       dateSpan.textContent = date;
       const sizeSpan = document.createElement("span");
       sizeSpan.textContent = asset && asset.size ? `${(asset.size / 1048576).toFixed(1)} MB` : translate("release.file");
-      meta.append(dateSpan, sizeSpan);
+      const countSpan = document.createElement("span");
+      countSpan.textContent = `${asset ? (asset.download_count || 0) : 0} ${translate("release.downloads")}`;
+      meta.append(dateSpan, sizeSpan, countSpan);
 
       main.append(titleRow, meta);
       item.appendChild(main);
+
+      const actions = document.createElement("div");
+      actions.className = "release-actions";
 
       const download = document.createElement("a");
       download.className = "release-download";
@@ -471,7 +501,41 @@ async function loadReleases() {
       download.setAttribute("target", "_blank");
       download.setAttribute("rel", "noreferrer");
       download.textContent = assetName;
-      item.appendChild(download);
+      actions.appendChild(download);
+
+      const copy = document.createElement("button");
+      copy.className = "release-copy";
+      copy.type = "button";
+      copy.textContent = translate("release.copy");
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(downloadUrl);
+          copy.textContent = translate("release.copied");
+          window.setTimeout(() => { copy.textContent = translate("release.copy"); }, 1600);
+        } catch {
+          copy.textContent = downloadUrl;
+        }
+      });
+      actions.appendChild(copy);
+      item.appendChild(actions);
+
+      if (release.body) {
+        const notes = document.createElement("div");
+        notes.className = "release-notes";
+        notes.textContent = releaseNotesText(release.body);
+
+        const notesToggle = document.createElement("button");
+        notesToggle.className = "release-notes-toggle";
+        notesToggle.type = "button";
+        notesToggle.textContent = translate("release.notes");
+        notesToggle.addEventListener("click", () => {
+          const open = notes.classList.toggle("is-open");
+          notesToggle.textContent = translate(open ? "release.notes.close" : "release.notes");
+        });
+
+        item.appendChild(notesToggle);
+        item.appendChild(notes);
+      }
 
       fragment.appendChild(item);
     });

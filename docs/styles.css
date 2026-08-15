@@ -301,6 +301,12 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
 .release-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 8px; color: var(--muted); font: 10px var(--mono); letter-spacing: 0.03em; }
 .release-download { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border: 1px solid rgba(52, 211, 153, 0.45); border-radius: 10px; color: var(--accent-soft); font: 11px var(--mono); letter-spacing: 0.03em; transition: background-color 0.25s ease, color 0.25s ease; }
 .release-download:hover { background: rgba(52, 211, 153, 0.12); color: #fff; }
+.release-actions { display: flex; align-items: center; gap: 8px; justify-self: end; }
+.release-copy { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink-soft); font: 10px var(--mono); letter-spacing: 0.03em; cursor: pointer; transition: color 0.25s ease, border-color 0.25s ease; }
+.release-copy:hover { color: var(--accent-soft); border-color: rgba(52, 211, 153, 0.5); }
+.release-notes-toggle { grid-column: 1 / -1; justify-self: start; margin-top: -4px; padding: 0; border: 0; background: transparent; color: var(--accent-soft); font: 10px var(--mono); letter-spacing: 0.03em; cursor: pointer; }
+.release-notes { grid-column: 1 / -1; max-height: 0; overflow: hidden; color: var(--ink-soft); font-size: 12px; line-height: 1.8; white-space: pre-wrap; transition: max-height 0.45s ease; }
+.release-notes.is-open { max-height: 420px; overflow: auto; padding-right: 4px; }
 .release-toggle { display: block; margin: 24px auto 0; min-height: 42px; padding: 0 20px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: transparent; font: 11px var(--mono); letter-spacing: 0.05em; cursor: pointer; transition: color 0.25s ease, border-color 0.25s ease; }
 .release-toggle:hover { color: var(--accent-soft); border-color: rgba(52, 211, 153, 0.5); }
 .release-toggle[hidden] { display: none; }
@@ -361,6 +367,7 @@ h2 { font-size: clamp(2.25rem, 4vw, 4rem); line-height: 1.18; }
   .carousel-controls { gap: 12px; }
   .carousel-btn { width: 36px; height: 36px; }
   .release-item { grid-template-columns: 1fr; align-items: start; }
+  .release-actions { justify-self: start; }
   .closing-card { display: grid; padding: 50px 28px; }
   .footer-inner { display: grid; grid-template-columns: 1fr; gap: 10px; }
 }
